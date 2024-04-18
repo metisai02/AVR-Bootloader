@@ -11,6 +11,7 @@
 #include "avr/io.h"
 #include <avr/interrupt.h>
 #include <avr/boot.h>
+
 void flash_erase_page(uint16_t address);
 void flash_fill_buffer(uint16_t address, uint16_t data);
 void flash_write_data(uint16_t address, const uint8_t *data, uint16_t size);

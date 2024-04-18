@@ -7,18 +7,17 @@ void timer1_init()
     // Set normal mode
     TCCR1A = 0;
     TCCR1B = 0;
-    TCNT1 = 65536 - 2000;
-    // Set prescaler divide by 8
+    TCNT1 = 0;
+    // Set prescaler divide by 1024
+    TCCR1B |= (1 << CS10);
     TCCR1B |= (1 << CS11);
-    // TIMSK1 |= (1 << TOIE1);
-    // sei();
+    TCCR1B |= (1 << CS12);
 }
-uint32_t getSystick()
+uint16_t getCNT()
 {
-    return countSystick;
+    return TCNT1;
 }
-// ISR(TIMER1_OVF_vect)
-// {
-//     countSystick++;
-//     TCNT1 = 65536 - 2000;
-// }
+void reset_timer1()
+{
+    TCNT1 = 0;
+}

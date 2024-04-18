@@ -56,7 +56,7 @@ void send_hex_buffer(uint8_t *buffer, uint8_t length)
 }
 void main_cs(void)
 {
-    UART_init(9600);
+    UART_init(38400);
     timer1_init();
     gpio_init();
     uint8_t dataReset[] = "BOOTLOADER RESET\n";
@@ -72,24 +72,23 @@ void boot_main()
     {
         do
         {
-            UART_Receive(boot_data, 1, MAX_TIME_OUT);
+            UART_Receive(boot_data, 1, 20000);
             if ((PIND & (1 << PORTD4)) == 0)
                 __asm__ volatile("jmp 0x0000");
 
         } while ((boot_data[0] != BOOT_START));
         UART_Receive(&boot_data[1], 1, MAX_TIME_OUT);
         UART_Receive(&boot_data[2], (boot_data[1] + 3), MAX_TIME_OUT);
-        uint16_t converted_data = (boot_data[4] << 8) | boot_data[3];
+        uint16_t converted_data = (boot_data[3] << 8) | boot_data[4];
         // check command
         switch (boot_data[2])
         {
         case BOOT_WRITE_CMD:
             d_write = (boot_write_t *)&boot_data[3];
             toggle_led();
-            if (boot_write_handler(d_write->address, d_write->data, boot_data[1]) == BOOT_OK)
+            if (boot_write_handler(converted_data, d_write->data, boot_data[1]) == BOOT_OK)
             {
                 boot_send_ack();
-                count++;
             }
             else
                 boot_send_nack();
@@ -107,13 +106,13 @@ void boot_main()
             break;
         case BOOT_READ_PAGE_CMD:
             res_data = (boot_res_read_frame_t *)boot_data;
-            if (boot_read_handler(converted_data, BOOT_READ_PAGE_CMD, res_data) == BOOT_OK)
-                boot_send_ack();
-
-            else
+            boot_send_ack();
+            if (boot_read_handler(converted_data, BOOT_READ_PAGE_CMD, res_data) != BOOT_OK)
                 boot_send_nack();
             break;
         case BOOT_READ_ALL_CMD:
+            toggle_led();
+            boot_send_ack();
             res_data = (boot_res_read_frame_t *)boot_data;
             if (boot_read_handler(converted_data, BOOT_READ_ALL_CMD, res_data) == BOOT_OK)
                 boot_send_ack();
@@ -135,6 +134,7 @@ void boot_main()
         }
         memset(boot_data, 0, sizeof(boot_data));
         d_write = NULL;
+        _delay_ms(1);
     }
 }
 void startup_code(void)

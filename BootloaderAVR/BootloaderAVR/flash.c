@@ -30,16 +30,21 @@ void flash_write_data(uint16_t address, const uint8_t *data, uint16_t size)
     uint16_t tmpAddress = address;
     cli();
     uint16_t tmpData = (size + SPM_PAGESIZE - 1) / SPM_PAGESIZE;
+    uint8_t lastDate = (size - 1) % SPM_PAGESIZE;
+    int loop = SPM_PAGESIZE;
     for (int i = 0; i < tmpData; i++)
     {
         tmpAddress = address + SPM_PAGESIZE * i;
         flash_erase_page(tmpAddress);
-        for (uint16_t j = 0; j < SPM_PAGESIZE; j += 2)
+        if (i == tmpData - 1)
+            loop = lastDate + 1;
+        for (uint16_t j = 0; j < loop; j += 2)
         {
             uint16_t w = *data++;
             w += (*data++) << 8;
             boot_page_fill(tmpAddress + j, w);
         }
+
         SPMCSR = __BOOT_PAGE_WRITE;
         __asm__ __volatile__(
             "spm\n\t" ::"z"(tmpAddress));

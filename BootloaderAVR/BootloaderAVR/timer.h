@@ -12,6 +12,6 @@
 #include "stdint.h"
 #include <avr/interrupt.h>
 void timer1_init();
-uint32_t getSystick();
+uint16_t getCNT();
 
 #endif /* TIMER_H_ */
