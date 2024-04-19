@@ -1,5 +1,5 @@
 # AVR-Bootloader
-This is a project for leaning how to handle bootloader in AVR (ATmega324)
+Customizable Bootloader for Atemega328p. This custom bootloader is designed to enable firmware updates on AVR microcontrollers. The bootloader allows you to load new firmware onto the microcontroller via serial communication.
 
 # Frame
 
