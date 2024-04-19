@@ -112,6 +112,7 @@ void boot_main()
             break;
         case BOOT_READ_ALL_CMD:
             toggle_led();
+            _delay_ms(1);
             boot_send_ack();
             res_data = (boot_res_read_frame_t *)boot_data;
             if (boot_read_handler(converted_data, BOOT_READ_ALL_CMD, res_data) == BOOT_OK)
