@@ -63,9 +63,9 @@
    <widget class="QTextEdit" name="tedHexfile">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>170</x>
       <y>80</y>
-      <width>151</width>
+      <width>161</width>
       <height>31</height>
      </rect>
     </property>
@@ -109,9 +109,9 @@
    <widget class="QPushButton" name="btnUpdateFi">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>9</x>
       <y>80</y>
-      <width>161</width>
+      <width>151</width>
       <height>31</height>
      </rect>
     </property>
@@ -124,7 +124,7 @@
      <rect>
       <x>10</x>
       <y>127</y>
-      <width>161</width>
+      <width>151</width>
       <height>31</height>
      </rect>
     </property>
@@ -137,7 +137,7 @@
      <rect>
       <x>10</x>
       <y>173</y>
-      <width>161</width>
+      <width>151</width>
       <height>31</height>
      </rect>
     </property>
@@ -250,7 +250,7 @@
      <x>0</x>
      <y>0</y>
      <width>1029</width>
-     <height>22</height>
+     <height>18</height>
     </rect>
    </property>
   </widget>

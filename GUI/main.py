@@ -17,8 +17,8 @@ class Mainwindow(QMainWindow):
         self.uart = Uart_serial(self.ui)
         self.tableFlash = Table(self.ui)
         self.flash = Flash(self.ui, self.uart, self.tableFlash)
-        self.device = Device(self.ui)
-        print(self.device.device_info["ATMEGA328p"])
+      #  self.device = Device(self.ui)
+       # print(self.device.device_info["ATMEGA328p"])
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     main_win = Mainwindow()

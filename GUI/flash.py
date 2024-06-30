@@ -2,7 +2,8 @@ from PyQt6.QtWidgets import QFileDialog, QMessageBox
 import math, time
 import threading
 import os
-
+import firebase_admin
+from firebase_admin import db, credentials
 
 ESP_HEADER = "AAAA"
 HEADER = "FFFF"
@@ -11,7 +12,7 @@ READ_ALL = "67"
 READ_PAGE = "68"
 READ_ADDR = "69"
 WRITE = "96"
-ERASE_ALL = '77'
+ERASE_ALL = "77"
 ACK = 0x22
 NACK = 0x11
 global_time = 0
@@ -22,6 +23,7 @@ def timer():
     while True:
         global_time += 1
         time.sleep(0.001)
+
 
 def crc16(data: bytes) -> int:
     poly = 0x8005
@@ -37,6 +39,9 @@ def crc16(data: bytes) -> int:
             crc &= 0xFFFF
     return crc
 
+# cred = credentials.Certificate("path/to/serviceAccountKey.json")
+# firebase_admin.initialize_app(cred)
+
 class Flash:
 
     def __init__(self, ui, uart, table):
@@ -44,8 +49,10 @@ class Flash:
         self.uart = uart
         self.table = table
         self.message_box = QMessageBox()
-        self.ui.btnEraseAll.clicked.connect(self.erase_all_secctor)
-        self.ui.btnRead.clicked.connect(self.read_all_data_from_flash_AVR)
+        self.ui.btnEraseOld.clicked.connect(self.erase_all_secctor)
+        self.ui.btnReadOld.clicked.connect(self.read_all_data_from_flash_AVR)
+        self.ui.btnUpdateFi.clicked.connect(self.browser_file)
+        self.ui.btnPush.clicked.connect(self.hex_file_handler)
         self.length_total = 0
         self.hex_data = []
         self.hex_string = ""
@@ -71,7 +78,6 @@ class Flash:
                 lines = file.readlines()
                 for line in lines:
                     self.hex_data.append(line)
-                    self.hex_string_handler(line)
                     line = line[:-1]
                     self.hex_string_hander_AVR(line)
         except Exception as e:
@@ -104,13 +110,13 @@ class Flash:
         elif record_type == "04":
             self.base_addr = data[9:13]
 
-
     def send_data_to_board_AVR(self, address, length, data):
         print(f"ADDRESS: {address}")
         print(f"LENGTH: {length}")
         length_data = math.ceil(length / 256)
         print(f"length_data: {length_data}")
-        os.truncate("firmware.txt", 0)
+        if os.path.exists("firmware.txt"):
+            os.truncate("firmware.txt", 0)
         for i in range(length_data):
             left = i * 256
             print(f"LEFT: {left}")
@@ -119,7 +125,7 @@ class Flash:
                 right = left + 256
                 length_frame = "80"
             else:
-                right = length
+                right = left
                 length_frame = hex(right + 1 - left)[2:].zfill(2)
 
             print(f"RIGHT: {right}")
@@ -130,33 +136,33 @@ class Flash:
             data_frame = START + length_frame + WRITE + new_address + data[left:right]
             data_bytes = bytes.fromhex(data_frame)
             crc = crc16(data_bytes)
-            
-            data_bytes = data_bytes + crc.to_bytes(2, byteorder='big')
 
+            data_bytes += crc.to_bytes(2, byteorder="big")
 
             if self.ui.chb_internet.isChecked():
                 data_byte = bytes.fromhex(ESP_HEADER)
                 data_bytes = data_byte + data_bytes
                 crc = crc16(data_bytes)
-                data_bytes = data_bytes + crc.to_bytes(2, byteorder='big')
+                data_bytes += crc.to_bytes(2, byteorder="big")
                 hex_string = data_bytes.hex()
 
-                # Lưu string hexa vào file .txt
-                with open('firmware.txt', 'w') as file:
+                # Save hex string to a file
+                with open("firmware.txt", "w") as file:
                     file.write(hex_string)
-                    
+                    if i == length_data:
+                        pass
+                        # send data to firebase
             else:
-                
-                
-            #check ACK
-                if self.ack_handle(data_bytes, 10) ==  False:
-                    self.message_box.setWindowtitle("Notification ")
-                    self.message_box.setText("Could not write data form the BOARD")
+                # check ACK
+                if not self.ack_handle(data_bytes, 10):
+                    self.message_box.setWindowTitle("Notification")
+                    self.message_box.setText("Could not write data to the BOARD")
                     self.message_box.exec()
+                    return
                 else:
                     self.message_box.setWindowTitle("Notification")
-                    self.messgae_box.setText("It is DONE")
-                    self.message_bex.exec()
+                    self.message_box.setText("It is DONE")
+                    self.message_box.exec()
         self.length_total = 0
         self.hex_data = []
         self.hex_string = ""
@@ -164,23 +170,27 @@ class Flash:
         self.first_time = True
 
     def erase_all_secctor(self):
-        length = '00'
+        length = "00"
         frame_read = START + length + ERASE_ALL + "02"
         data_bytes = bytes.fromhex(frame_read)
         crc = crc16(data_bytes)
-            
-        data_bytes = data_bytes + crc.to_bytes(2, byteorder='big')
-        retransmit  = 10
 
-        if self.internet_handle(data_bytes, restransmit) == True:
-            self.message_box.setWindowTitle("Notification")
-            self.message_box.setText("erase all succeefully")
-            self.message_box.exec()
+        data_bytes = data_bytes + crc.to_bytes(2, byteorder="big")
+        retransmit = 10
+
+        if self.ui.chb_internet.isChecked():
+            #set flag on deleting database
+            pass
+
         else:
-            self.message_box.setWindowTitle("Notification")
-            self.message_box.setText("erase all not succeefully")
-            self.message_box.exec()
-        
+            if self.internet_handle(data_bytes, retransmit) == True:
+                self.message_box.setWindowTitle("Notification")
+                self.message_box.setText("erase all succeefully")
+                self.message_box.exec()
+            else:
+                self.message_box.setWindowTitle("Notification")
+                self.message_box.setText("erase all not succeefully")
+                self.message_box.exec()
 
     def read_all_data_from_flash_AVR(self):
         length = "00"
@@ -188,13 +198,13 @@ class Flash:
         data_bytes = bytes.fromhex(frame_read)
         restransmit = 10
         crc = crc16(data_bytes)
-            
-        data_bytes = data_bytes + crc.to_bytes(2, byteorder='big')
+
+        data_bytes = data_bytes + crc.to_bytes(2, byteorder="big")
         ack_frame = False
         frame_buffer = []
         frame_size = 130
         remain = 0
-        if self.ack_handle(data_bytes,restransmit) ==  True:
+        if self.ack_handle(data_bytes, restransmit) == True:
             # waititng reading data from the board
             array_page = [0] * 5
             time_ack = global_time
@@ -202,7 +212,7 @@ class Flash:
                 if remain == 1:
                     new_data += self.uart.serialPort.read_all()
                 new_data = self.uart.serialPort.read_all()
-                print(F"DATA: {new_data}")
+                print(f"DATA: {new_data}")
                 if len(new_data) > 0:
                     for byte in new_data:
                         if not is_in_frame:
@@ -219,13 +229,11 @@ class Flash:
                                 if page_index != -1 and page_index < 6:
                                     array_page[page_index] = 1
                                 frame_buffer.clear()
-            
+
         else:
             self.message_box.setWindowTitle("Notification")
             self.message_box.setText("Could not read data form the BOARD")
             self.message_box.exec()
-
-
 
     def send_read_data_on_GUI(self, frame):
         self.table.update_frame(frame)
@@ -235,7 +243,7 @@ class Flash:
     def process_ack(self, frame):
         return frame[1] == ACK
 
-    def ack_handle(self,data_bytes, retransmits):
+    def ack_handle(self, data_bytes, retransmits):
         ack_frame = False
         cout_retransmit = 0
         frame_buffer = []
@@ -267,18 +275,13 @@ class Flash:
             # Nếu không nhận được ACK sau 10 lần thử, thoát vòng lặp
             if cout_retransmit == retransmits:
                 return False
-        
+
     def internet_handle(self, data_bytes, retransmit):
         if self.ui.chb_internet.isChecked():
             data_byte = bytes.fromhex(ESP_HEADER)
             data_bytes = data_byte + data_bytes
             crc = crc16(data_bytes)
-            data_bytes = data_bytes + crc.to_bytes(2, byteorder='big')
-
+            data_bytes = data_bytes + crc.to_bytes(2, byteorder="big")
 
         else:
-            return self.ack_handle(data_bytes,restransmit)
-
-
-            
-
+            return self.ack_handle(data_bytes, retransmit)
