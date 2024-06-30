@@ -4,7 +4,7 @@ import threading
 import os
 import firebase_admin
 from firebase_admin import db, credentials
-
+from firebase_admin import storage
 ESP_HEADER = "AAAA"
 HEADER = "FFFF"
 START = "55"
@@ -117,6 +117,9 @@ class Flash:
         print(f"length_data: {length_data}")
         if os.path.exists("firmware.txt"):
             os.truncate("firmware.txt", 0)
+        else:
+            pass
+
         for i in range(length_data):
             left = i * 256
             print(f"LEFT: {left}")
@@ -147,10 +150,11 @@ class Flash:
                 hex_string = data_bytes.hex()
 
                 # Save hex string to a file
-                with open("firmware.txt", "w") as file:
+                with open("firmware.txt", "a") as file:
                     file.write(hex_string)
+                    file.write("\n")
                     if i == length_data:
-                        pass
+                        
                         # send data to firebase
             else:
                 # check ACK
