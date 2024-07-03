@@ -3,8 +3,9 @@ import math, time
 import threading
 import os
 import firebase_admin
-from firebase_admin import db, credentials
-from firebase_admin import storage
+from firebase_admin import db, credentials, storage, firestore
+from dotenv import load_dotenv
+from confidental import Confidental
 ESP_HEADER = "AAAA"
 HEADER = "FFFF"
 START = "55"
@@ -17,6 +18,26 @@ ACK = 0x22
 NACK = 0x11
 global_time = 0
 
+
+
+# Initialize Firebase app
+#firebase_admin.initialize_app(credentials.Certificate(Config["serviceAccount"]))
+
+try:
+    firebase_admin.initialize_app(credentials.Certificate(Config['serviceAccount']), {
+        'storageBucket': Config['storageBucket'],
+        'databaseURL': 'https://thesis-esp-default-rtdb.asia-southeast1.firebasedatabase.app/'
+    })
+    print("Firebase app initialization successful!")
+except ValueError as e:
+    print(f"Firebase app initialization failed: {e}")
+
+ref = db.reference('/flag')
+
+
+# Initialize Firebase Storage
+bucket = storage.bucket()
+print(f"Connected to bucket: {bucket.name}")
 
 def timer():
     global global_time
@@ -39,8 +60,6 @@ def crc16(data: bytes) -> int:
             crc &= 0xFFFF
     return crc
 
-# cred = credentials.Certificate("path/to/serviceAccountKey.json")
-# firebase_admin.initialize_app(cred)
 
 class Flash:
 
@@ -130,6 +149,7 @@ class Flash:
             else:
                 right = left
                 length_frame = hex(right + 1 - left)[2:].zfill(2)
+                i = length_data
 
             print(f"RIGHT: {right}")
 
@@ -153,9 +173,12 @@ class Flash:
                 with open("firmware.txt", "a") as file:
                     file.write(hex_string)
                     file.write("\n")
-                    if i == length_data:
-                        
-                        # send data to firebase
+                if i == length_data:
+                        self.upload_file_to_firebase("firmware.txt")
+                        ref.set({
+                            'newFirmwareUpdate': 'False',
+                        })
+
             else:
                 # check ACK
                 if not self.ack_handle(data_bytes, 10):
@@ -173,6 +196,13 @@ class Flash:
         self.base_addr = ""
         self.first_time = True
 
+    def upload_file_to_firebase(self, file_path):
+        blob = bucket.blob("storage/firmware.txt")
+        blob.upload_from_filename(file_path)
+        blob.make_public()
+
+        print(f"File URL: {blob.public_url}")
+
     def erase_all_secctor(self):
         length = "00"
         frame_read = START + length + ERASE_ALL + "02"
@@ -183,7 +213,7 @@ class Flash:
         retransmit = 10
 
         if self.ui.chb_internet.isChecked():
-            #set flag on deleting database
+            # set flag on deleting database
             pass
 
         else:

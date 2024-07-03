@@ -86,7 +86,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>20</y>
+       <y>0</y>
        <width>631</width>
        <height>381</height>
       </rect>
@@ -210,22 +210,22 @@
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">
      <rect>
-      <x>480</x>
+      <x>440</x>
       <y>20</y>
-      <width>171</width>
+      <width>211</width>
       <height>201</height>
      </rect>
     </property>
     <property name="title">
      <string>SPECIFICATION</string>
     </property>
-    <widget class="QPlainTextEdit" name="specification">
+    <widget class="QTextEdit" name="specification">
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>30</y>
-       <width>171</width>
-       <height>171</height>
+       <y>10</y>
+       <width>201</width>
+       <height>191</height>
       </rect>
      </property>
     </widget>

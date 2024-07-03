@@ -23,7 +23,7 @@ class Table:
             for j in range(8):
                 self.ui.tabFlash.setItem(i, j, QTableWidgetItem("FFFF"))
                 if init != True:
-                    self.ui.tabFlash.setColumnWidth(j, 55)
+                    self.ui.tabFlash.setColumnWidth(j, 70)
             init = True
 
     def update_frame(self, frame):

@@ -3,36 +3,25 @@ class Device():
     def __init__(self, ui):
         self.ui = ui
         self.device_info = {
-            'STM32_F411-DIS': {
-                'Flash size': '512k',
-                'Page': '7',
-                'SRAM': '128k'
-            },
-            'STM32_F103': {
-                'Flash size': '128k',
-                'Page': '128',
-                'SRAM': '16k'
-            },
             'ATMEGA328p': {
-                'Flash size': 'none',
-                'Page': 'none',
-                'SRAM': 'none'
+                'Flash size': '32 KB',
+                'Page': '64 bytes',
+                'SRAM': '2 KB',
+                'EEPROM': '1 KB',
+                'Clock Speed': '20 MHz',
+                'Operating Voltage': '1.8V - 5.5V',
+                'Number of GPIO Pins': '23',
+                'PWM Channels': '6',
+                'ADC Channels': '6',
+                'USART': '1',
+                'SPI': '1',
+                'I2C': '1'
             }
         }
-        self.ui.cbDevice.addItems(self.device_info.keys())
-        self.ui.cbDevice.currentIndexChanged.connect(self.set_info)
-        self.ui.btnAuto.clicked.connect(self.auto_handler)
         self.set_info()
+        self.ui.specification.setReadOnly(True)
 
     def set_info(self):
-        device = self.ui.cbDevice.currentText()
-        details = self.device_info[device]
-        text = ""
-        for key, value in details.items():
-            text += f"{key}: {value}\n"
-        self.ui.ptedDevice.setPlainText(text)
-    def auto_handler(self):
-        pass
-        #todo1: handle connecting device
-        #todo2: limited lenght of flash address
-        
+        info = self.device_info['ATMEGA328p']
+        info_text = "<br>".join(f"<b>{key}:</b> {value}" for key, value in info.items())
+        self.ui.specification.setHtml(info_text)
