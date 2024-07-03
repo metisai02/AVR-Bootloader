@@ -31,26 +31,26 @@ void wifi_init()
     esp_event_loop_create_default();
     esp_netif_create_default_wifi_sta();
     wifi_init_config_t wifi_init = WIFI_INIT_CONFIG_DEFAULT();
-    esp_wifi_init(&wifi_init);
+    ESP_ERROR_CHECK(esp_wifi_init(&wifi_init));
 
     // pharse 2
-    esp_wifi_set_mode(WIFI_MODE_STA);
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     const uint8_t protocol = WIFI_PROTOCOL_11B;
-    esp_wifi_set_protocol(WIFI_IF_STA, protocol);
+    ESP_ERROR_CHECK(esp_wifi_set_protocol(WIFI_IF_STA, protocol));
 
     // pharse 3
 
-    esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, wifi_event_handler,
-                               NULL);
-    esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler,
-                               NULL);
-    esp_event_handler_register(SC_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler,
-                               NULL);
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, wifi_event_handler,
+                               NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler,
+                               NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(SC_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler,
+                               NULL));
 
-    esp_wifi_set_config(WIFI_IF_STA, &wifi_configuration);
+    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_configuration));
 
-    esp_wifi_start();
-    esp_wifi_connect();
+    ESP_ERROR_CHECK(esp_wifi_start());
+    ESP_ERROR_CHECK(esp_wifi_connect());
 }
 static void wifi_event_handler(void *event_handler_arg,
                                esp_event_base_t event_base, int32_t event_id,
@@ -61,28 +61,28 @@ static void wifi_event_handler(void *event_handler_arg,
         switch (event_id)
         {
         case WIFI_EVENT_STA_START:
-            printf("WIFI_EVENT_STA_START\n");
-            esp_wifi_connect();
+            ESP_LOGI("WIFI_EVENT", "WIFI_EVENT_STA_START");
+            ESP_ERROR_CHECK(esp_wifi_connect());
             xTaskCreate(smartConfig_handler, "smartConfig_handler", 1024 * 3, NULL,
                         11, &smartConfigHandle);
             /* code */
             break;
         case WIFI_EVENT_STA_CONNECTED:
-            printf("WIFI_EVENT_STA_CONNECTED\n");
+            ESP_LOGI("WIFI_EVENT", "WIFI_EVENT_STA_CONNECTED");
             /* code */
             break;
         case WIFI_EVENT_STA_DISCONNECTED:
-            esp_wifi_connect();
+            ESP_ERROR_CHECK(esp_wifi_connect());
             xEventGroupClearBits(event_group, WIFI_CONNECTED_BIT);
-            printf("WIFI_EVENT_STA_DISCONNECTED\n");
+            ESP_LOGI("WIFI_EVENT", "WIFI_EVENT_STA_DISCONNECTED");
             /* code */
             break;
         case WIFI_EVENT_STA_BEACON_TIMEOUT:
-            printf("WIFI_EVENT_STA_CONNECTED\n");
+            ESP_LOGI("WIFI_EVENT", "WIFI_EVENT_STA_BEACON_TIMEOUT");
             /* code */
             break;
         case WIFI_EVENT_STA_STOP:
-            printf("    \n");
+            ESP_LOGI("WIFI_EVENT", "WIFI_EVENT_STA_STOP");
             /* code */
             break;
 
@@ -95,7 +95,7 @@ static void wifi_event_handler(void *event_handler_arg,
         switch (event_id)
         {
         case IP_EVENT_STA_GOT_IP:
-            printf("IP_EVENT_STA_GOT_IP\n");
+            ESP_LOGI("IP_EVENT", "IP_EVENT_STA_GOT_IP");
             xEventGroupSetBits(event_group, WIFI_CONNECTED_BIT);
 
             ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
@@ -105,7 +105,7 @@ static void wifi_event_handler(void *event_handler_arg,
             inet_ntoa_r(event->ip_info.ip, ip_address_str, sizeof(ip_address_str));
             // Hiển thị địa chỉ IP lên màn hình OLED
             ip_address_str[16] = '\0';
-            printf("IP: %s\n", ip_address_str);
+            ESP_LOGI("IP_EVENT", "IP: %s", ip_address_str);
             break;
         default:
             break;
@@ -116,15 +116,14 @@ static void wifi_event_handler(void *event_handler_arg,
         switch (event_id)
         {
         case SC_EVENT_SCAN_DONE:
-            printf("SC_EVENT_SCAN_DONE\n");
+            ESP_LOGI("SC_EVENT", "SC_EVENT_SCAN_DONE");
             break;
         case SC_EVENT_FOUND_CHANNEL:
-            printf("SC_EVENT_FOUND_CHANNEL\n");
+            ESP_LOGI("SC_EVENT", "SC_EVENT_FOUND_CHANNEL");
             break;
         case SC_EVENT_GOT_SSID_PSWD:
             uint8_t ssid[33] = {0};
             uint8_t password[65] = {0};
-            // uint8_t rvd_data[33] = {0};
             smartconfig_event_got_ssid_pswd_t *evt =
                 (smartconfig_event_got_ssid_pswd_t *)event_data;
             bzero(&wifi_configuration, sizeof(wifi_config_t));
@@ -134,11 +133,11 @@ static void wifi_event_handler(void *event_handler_arg,
                    sizeof(wifi_configuration.sta.password));
             memcpy(ssid, evt->ssid, sizeof(evt->ssid));
             memcpy(password, evt->password, sizeof(evt->password));
-            printf("SSID:%s\n", ssid);
-            printf("PASSWORD:%s\n", password);
-            esp_wifi_disconnect();
-            esp_wifi_set_config(WIFI_IF_STA, &wifi_configuration);
-            esp_wifi_connect();
+            ESP_LOGI("SC_EVENT", "SSID:%s", ssid);
+            ESP_LOGI("SC_EVENT", "PASSWORD:%s", password);
+            ESP_ERROR_CHECK(esp_wifi_disconnect());
+            ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_configuration));
+            ESP_ERROR_CHECK(esp_wifi_connect());
             break;
         case SC_EVENT_SEND_ACK_DONE:
             break;
@@ -153,6 +152,6 @@ static void smartConfig_handler(void *para)
     esp_smartconfig_set_type(SC_TYPE_ESPTOUCH);
     smartconfig_start_config_t cfg = SMARTCONFIG_START_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_smartconfig_start(&cfg));
-    printf("SMARTCONFIG START CONFIG\n");
+    ESP_LOGI("SMARTCONFIG", "SMARTCONFIG START CONFIG");
     vTaskDelete(NULL);
 }

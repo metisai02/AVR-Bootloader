@@ -11,5 +11,4 @@ menu "Wifi Configuration"
         default "23456789"
         help
             WiFi password (WPA or WPA2) for the example to use.
-
 endmenu
