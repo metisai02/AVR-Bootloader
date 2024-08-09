@@ -37,49 +37,49 @@ typedef enum
     BOOT_ERROR,
     BOOT_TIMEOUT
 } boot_status_t;
-typedef struct __attribute__((packed))
+typedef struct
 {
     uint8_t start;
     uint8_t length;
     uint8_t command;
 } boot_common_t;
 // frame for reading
-typedef struct __attribute__((packed))
+typedef struct
 {
     uint16_t address;
     uint32_t crc;
 } boot_read_t;
-typedef struct __attribute__((packed))
+typedef struct
 {
     boot_common_t common;
     boot_read_t b_read;
 } boot_read_frame_t;
 // frame for writing
-typedef struct __attribute__((packed))
+typedef struct
 {
     uint16_t address;
     uint8_t data[128];
-    // uint32_t crc;
+    uint32_t crc;
 } boot_write_t;
-typedef struct __attribute__((packed))
+typedef struct
 {
     boot_common_t common;
     boot_write_t b_write;
 } boot_write_frame_t;
 
 // frame for erasing
-typedef struct __attribute__((packed))
+typedef struct
 {
     uint16_t address;
     uint32_t crc;
 } boot_erase_t;
-typedef struct __attribute__((packed))
+typedef struct
 {
     boot_common_t common;
     boot_erase_t b_earse;
 } boot_earse_frame_t;
 // response frame read of AVR
-typedef struct __attribute__((packed))
+typedef struct
 {
     uint8_t start;
     uint8_t page;
@@ -95,8 +95,8 @@ typedef struct
 } boot_ack_t;
 void boot_send_ack();
 void boot_send_nack();
-uint8_t boot_write_handler(uint16_t address, uint8_t *d_write, uint8_t size);
-boot_status_t boot_read_handler(uint16_t address, boot_command type, boot_res_read_frame_t *bufData);
-uint8_t boot_erase_handler();
+boot_status_t boot_write_handler(boot_write_frame_t *booDataWrite);
+boot_status_t boot_read_handler(boot_read_frame_t *booDataRead);
+boot_status_t boot_erase_handler();
 
 #endif /* INC_BOOT_H_ */

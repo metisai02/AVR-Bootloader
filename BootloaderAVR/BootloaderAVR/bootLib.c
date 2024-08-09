@@ -1,7 +1,8 @@
 
 #include "bootLib.h"
-#include <util/delay.h>
-#include <avr/pgmspace.h>
+#include "util/delay.h"
+#include "avr/pgmspace.h"
+#include "crc16.h"
 // extern uint8_t count;
 void boot_send_ack()
 {
@@ -13,18 +14,26 @@ void boot_send_nack()
     boot_ack_t nack = {BOOT_START, BOOT_NACK};
     UART_Transmit((uint8_t *)&nack, sizeof(nack), MAX_TIME_OUT);
 }
-uint8_t boot_write_handler(uint16_t address, uint8_t *d_write, uint8_t size)
+boot_status_t boot_write_handler(boot_write_frame_t *booDataWrite)
 {
-    flash_write_data(address, d_write, size);
+    uint16_t crc_check = crc16((uint8_t *)booDataWrite, booDataWrite->common.length);
+    if (crc_check != booDataWrite->b_write.crc)
+        return BOOT_ERROR;
+    flash_write_data(booDataWrite->b_write.address, booDataWrite->b_write.data, booDataWrite->common.length);
     return BOOT_OK;
 }
-boot_status_t boot_read_handler(uint16_t address, boot_command type, boot_res_read_frame_t *res_frame)
+boot_status_t boot_read_handlerboot_read_handler(boot_read_frame_t *booDataRead);
 {
+
+    uint16_t crc_check = crc16((uint8_t *)booDataRead, booDataRead->common.length);
+    if (crc_check != booDataRead->b_read.crc)
+        return BOOT_ERROR;
+
     res_frame->start = BOOT_START;
     res_frame->page = (uint8_t)(address / 128);
     uint16_t real_address = res_frame->page * 128;
 
-    switch (type)
+    switch (booDataRead->common.command)
     {
     case BOOT_READ_ADD_CMD:
         res_frame->page = 0xFF;
@@ -44,7 +53,7 @@ boot_status_t boot_read_handler(uint16_t address, boot_command type, boot_res_re
         break;
 
     case BOOT_READ_ALL_CMD:
-		_delay_ms(5);
+        _delay_ms(5);
         for (int i = 0; i < 5; i++)
         {
             res_frame->page = i;
@@ -64,8 +73,12 @@ boot_status_t boot_read_handler(uint16_t address, boot_command type, boot_res_re
     return BOOT_ERROR;
 }
 
-boot_status_t boot_erase_handler()
+boot_status_t boot_erase_handler(boot_earse_frame_t *booDataEarse)
 {
+    uint16_t crc_check = crc16((uint8_t *)booDataEarse, booDataEarse->common.length);
+    if (crc_check != booDataEarse->b_earse.crc)
+        return BOOT_ERROR;
+
     for (int i = 0; i < 20; i++)
     {
         uint16_t real_address = 128 * i;

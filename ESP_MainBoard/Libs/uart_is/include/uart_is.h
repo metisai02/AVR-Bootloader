@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include "driver/gpio.h"
 #include "esp_log.h"
-#include "main.h"
 #include "driver/uart.h"
 
 #define BUF_SIZE (1024)

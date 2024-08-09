@@ -19,7 +19,7 @@ typedef enum
 {
     AVR_OK = 0,
     AVR_ERROR,
-    AVR_TIMEOUT
+    AVR_TIMEOUT 
 } AVR_status_t;
 
 uint8_t is_external_clock();

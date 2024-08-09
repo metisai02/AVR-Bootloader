@@ -4,7 +4,6 @@
 #define ON true
 #define OFF false
 static const int RX_BUF_SIZE = 1024;
-extern QueueHandle_t xQueue_gpio;
 TaskHandle_t xtask_uart_handle = NULL;
 
 static void UartTaskHanlder(void *para);
