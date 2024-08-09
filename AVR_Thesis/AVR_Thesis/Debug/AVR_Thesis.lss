@@ -1,0 +1,1536 @@
+
+AVR_Thesis.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .data         00000012  00800100  000077b4  00000828  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         000007b4  00007000  00007000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .comment      00000030  00000000  00000000  0000083a  2**0
+                  CONTENTS, READONLY
+  3 .debug_aranges 00000148  00000000  00000000  0000086a  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_info   00001522  00000000  00000000  000009b2  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_abbrev 000006f8  00000000  00000000  00001ed4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_line   00000b2f  00000000  00000000  000025cc  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_frame  0000035c  00000000  00000000  000030fc  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_str    0000059c  00000000  00000000  00003458  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_loc    00000f07  00000000  00000000  000039f4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_ranges 000001c0  00000000  00000000  000048fb  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00007000 <__ctors_end>:
+    7000:	11 e0       	ldi	r17, 0x01	; 1
+    7002:	a0 e0       	ldi	r26, 0x00	; 0
+    7004:	b1 e0       	ldi	r27, 0x01	; 1
+    7006:	e4 eb       	ldi	r30, 0xB4	; 180
+    7008:	f7 e7       	ldi	r31, 0x77	; 119
+    700a:	02 c0       	rjmp	.+4      	; 0x7010 <__ctors_end+0x10>
+    700c:	05 90       	lpm	r0, Z+
+    700e:	0d 92       	st	X+, r0
+    7010:	a2 31       	cpi	r26, 0x12	; 18
+    7012:	b1 07       	cpc	r27, r17
+    7014:	d9 f7       	brne	.-10     	; 0x700c <__ctors_end+0xc>
+
+00007016 <__do_clear_bss>:
+    7016:	21 e0       	ldi	r18, 0x01	; 1
+    7018:	a2 e1       	ldi	r26, 0x12	; 18
+    701a:	b1 e0       	ldi	r27, 0x01	; 1
+    701c:	01 c0       	rjmp	.+2      	; 0x7020 <.do_clear_bss_start>
+
+0000701e <.do_clear_bss_loop>:
+    701e:	1d 92       	st	X+, r1
+
+00007020 <.do_clear_bss_start>:
+    7020:	a2 31       	cpi	r26, 0x12	; 18
+    7022:	b2 07       	cpc	r27, r18
+    7024:	e1 f7       	brne	.-8      	; 0x701e <.do_clear_bss_loop>
+
+00007026 <startup_code>:
+    }
+}
+
+void startup_code(void)
+{
+    main_cs();
+    7026:	0e 94 dc 3a 	call	0x75b8	; 0x75b8 <main_cs>
+
+0000702a <crc16>:
+void UART_Transmit_CRC(uint16_t crc_value) {
+	char crc_str[5];  // 4 ký tự cho giá trị hex và 1 ký tự null-terminator
+	snprintf(crc_str, sizeof(crc_str), "%04X", crc_value);
+
+	UART_Transmit((uint8_t *)crc_str, strlen(crc_str), MAX_TIME_OUT);
+}
+    702a:	dc 01       	movw	r26, r24
+    702c:	40 e0       	ldi	r20, 0x00	; 0
+    702e:	50 e0       	ldi	r21, 0x00	; 0
+    7030:	80 e0       	ldi	r24, 0x00	; 0
+    7032:	90 e0       	ldi	r25, 0x00	; 0
+    7034:	1a c0       	rjmp	.+52     	; 0x706a <crc16+0x40>
+    7036:	fd 01       	movw	r30, r26
+    7038:	e4 0f       	add	r30, r20
+    703a:	f5 1f       	adc	r31, r21
+    703c:	20 81       	ld	r18, Z
+    703e:	30 e0       	ldi	r19, 0x00	; 0
+    7040:	32 2f       	mov	r19, r18
+    7042:	22 27       	eor	r18, r18
+    7044:	82 27       	eor	r24, r18
+    7046:	93 27       	eor	r25, r19
+    7048:	20 e0       	ldi	r18, 0x00	; 0
+    704a:	0b c0       	rjmp	.+22     	; 0x7062 <crc16+0x38>
+    704c:	99 23       	and	r25, r25
+    704e:	34 f4       	brge	.+12     	; 0x705c <crc16+0x32>
+    7050:	88 0f       	add	r24, r24
+    7052:	99 1f       	adc	r25, r25
+    7054:	35 e0       	ldi	r19, 0x05	; 5
+    7056:	83 27       	eor	r24, r19
+    7058:	90 58       	subi	r25, 0x80	; 128
+    705a:	02 c0       	rjmp	.+4      	; 0x7060 <crc16+0x36>
+    705c:	88 0f       	add	r24, r24
+    705e:	99 1f       	adc	r25, r25
+    7060:	2f 5f       	subi	r18, 0xFF	; 255
+    7062:	28 30       	cpi	r18, 0x08	; 8
+    7064:	98 f3       	brcs	.-26     	; 0x704c <crc16+0x22>
+    7066:	4f 5f       	subi	r20, 0xFF	; 255
+    7068:	5f 4f       	sbci	r21, 0xFF	; 255
+    706a:	46 17       	cp	r20, r22
+    706c:	57 07       	cpc	r21, r23
+    706e:	18 f3       	brcs	.-58     	; 0x7036 <crc16+0xc>
+    7070:	08 95       	ret
+
+00007072 <boot_send_ack>:
+    7072:	cf 93       	push	r28
+    7074:	df 93       	push	r29
+    7076:	00 d0       	rcall	.+0      	; 0x7078 <boot_send_ack+0x6>
+    7078:	cd b7       	in	r28, 0x3d	; 61
+    707a:	de b7       	in	r29, 0x3e	; 62
+    707c:	85 e5       	ldi	r24, 0x55	; 85
+    707e:	89 83       	std	Y+1, r24	; 0x01
+    7080:	82 e2       	ldi	r24, 0x22	; 34
+    7082:	8a 83       	std	Y+2, r24	; 0x02
+    7084:	20 e0       	ldi	r18, 0x00	; 0
+    7086:	32 e1       	ldi	r19, 0x12	; 18
+    7088:	4a e7       	ldi	r20, 0x7A	; 122
+    708a:	50 e0       	ldi	r21, 0x00	; 0
+    708c:	62 e0       	ldi	r22, 0x02	; 2
+    708e:	70 e0       	ldi	r23, 0x00	; 0
+    7090:	ce 01       	movw	r24, r28
+    7092:	01 96       	adiw	r24, 0x01	; 1
+    7094:	0e 94 52 3b 	call	0x76a4	; 0x76a4 <UART_Transmit>
+    7098:	0f 90       	pop	r0
+    709a:	0f 90       	pop	r0
+    709c:	df 91       	pop	r29
+    709e:	cf 91       	pop	r28
+    70a0:	08 95       	ret
+
+000070a2 <boot_send_nack>:
+void boot_send_nack()
+{
+    70a2:	cf 93       	push	r28
+    70a4:	df 93       	push	r29
+    70a6:	00 d0       	rcall	.+0      	; 0x70a8 <boot_send_nack+0x6>
+    70a8:	cd b7       	in	r28, 0x3d	; 61
+    70aa:	de b7       	in	r29, 0x3e	; 62
+    boot_ack_t nack = {BOOT_START, BOOT_NACK};
+    70ac:	85 e5       	ldi	r24, 0x55	; 85
+    70ae:	89 83       	std	Y+1, r24	; 0x01
+    70b0:	81 e1       	ldi	r24, 0x11	; 17
+    70b2:	8a 83       	std	Y+2, r24	; 0x02
+    UART_Transmit((uint8_t *)&nack, sizeof(nack), MAX_TIME_OUT);
+    70b4:	20 e0       	ldi	r18, 0x00	; 0
+    70b6:	32 e1       	ldi	r19, 0x12	; 18
+    70b8:	4a e7       	ldi	r20, 0x7A	; 122
+    70ba:	50 e0       	ldi	r21, 0x00	; 0
+    70bc:	62 e0       	ldi	r22, 0x02	; 2
+    70be:	70 e0       	ldi	r23, 0x00	; 0
+    70c0:	ce 01       	movw	r24, r28
+    70c2:	01 96       	adiw	r24, 0x01	; 1
+    70c4:	0e 94 52 3b 	call	0x76a4	; 0x76a4 <UART_Transmit>
+}
+    70c8:	0f 90       	pop	r0
+    70ca:	0f 90       	pop	r0
+    70cc:	df 91       	pop	r29
+    70ce:	cf 91       	pop	r28
+    70d0:	08 95       	ret
+
+000070d2 <boot_write_handler>:
+
+boot_status_t boot_write_handler(boot_write_frame_t *booDataWrite)
+{
+    70d2:	1f 93       	push	r17
+    70d4:	cf 93       	push	r28
+    70d6:	df 93       	push	r29
+    70d8:	ec 01       	movw	r28, r24
+    uint16_t crc_check = crc16((uint8_t *)booDataWrite, booDataWrite->common.length + 5);
+    70da:	19 81       	ldd	r17, Y+1	; 0x01
+    70dc:	61 2f       	mov	r22, r17
+    70de:	70 e0       	ldi	r23, 0x00	; 0
+    70e0:	6b 5f       	subi	r22, 0xFB	; 251
+    70e2:	7f 4f       	sbci	r23, 0xFF	; 255
+    70e4:	0e 94 15 38 	call	0x702a	; 0x702a <crc16>
+    crc_check = (crc_check >> 8) | (crc_check << 8);
+    70e8:	98 27       	eor	r25, r24
+    70ea:	89 27       	eor	r24, r25
+    70ec:	98 27       	eor	r25, r24
+	
+	//UART_Transmit_CRC(crc_check);  // Hiển thị CRC đã tính toán qua UART
+	//UART_Transmit_CRC(booDataWrite->b_write.crc);
+    booDataWrite->b_write.address = (booDataWrite->b_write.address >> 8) | (booDataWrite->b_write.address << 8);
+    70ee:	2b 81       	ldd	r18, Y+3	; 0x03
+    70f0:	3c 81       	ldd	r19, Y+4	; 0x04
+    70f2:	32 27       	eor	r19, r18
+    70f4:	23 27       	eor	r18, r19
+    70f6:	32 27       	eor	r19, r18
+    70f8:	3c 83       	std	Y+4, r19	; 0x04
+    70fa:	2b 83       	std	Y+3, r18	; 0x03
+    if (crc_check != booDataWrite->b_write.crc)
+    70fc:	fe 01       	movw	r30, r28
+    70fe:	eb 57       	subi	r30, 0x7B	; 123
+    7100:	ff 4f       	sbci	r31, 0xFF	; 255
+    7102:	40 81       	ld	r20, Z
+    7104:	51 81       	ldd	r21, Z+1	; 0x01
+    7106:	84 17       	cp	r24, r20
+    7108:	95 07       	cpc	r25, r21
+    710a:	51 f4       	brne	.+20     	; 0x7120 <boot_write_handler+0x4e>
+    {
+        return BOOT_ERROR;
+    }
+
+    // Ghi dữ liệu vào flash
+    flash_write_data(booDataWrite->b_write.address, booDataWrite->b_write.data, booDataWrite->common.length);
+    710c:	be 01       	movw	r22, r28
+    710e:	6b 5f       	subi	r22, 0xFB	; 251
+    7110:	7f 4f       	sbci	r23, 0xFF	; 255
+    7112:	41 2f       	mov	r20, r17
+    7114:	50 e0       	ldi	r21, 0x00	; 0
+    7116:	c9 01       	movw	r24, r18
+    7118:	0e 94 b4 39 	call	0x7368	; 0x7368 <flash_write_data>
+    return BOOT_OK;
+    711c:	80 e0       	ldi	r24, 0x00	; 0
+    711e:	01 c0       	rjmp	.+2      	; 0x7122 <boot_write_handler+0x50>
+	//UART_Transmit_CRC(crc_check);  // Hiển thị CRC đã tính toán qua UART
+	//UART_Transmit_CRC(booDataWrite->b_write.crc);
+    booDataWrite->b_write.address = (booDataWrite->b_write.address >> 8) | (booDataWrite->b_write.address << 8);
+    if (crc_check != booDataWrite->b_write.crc)
+    {
+        return BOOT_ERROR;
+    7120:	81 e0       	ldi	r24, 0x01	; 1
+    }
+
+    // Ghi dữ liệu vào flash
+    flash_write_data(booDataWrite->b_write.address, booDataWrite->b_write.data, booDataWrite->common.length);
+    return BOOT_OK;
+}
+    7122:	df 91       	pop	r29
+    7124:	cf 91       	pop	r28
+    7126:	1f 91       	pop	r17
+    7128:	08 95       	ret
+
+0000712a <boot_read_handler>:
+
+boot_status_t boot_read_handler(boot_read_frame_t *booDataRead)
+{
+    712a:	0f 93       	push	r16
+    712c:	1f 93       	push	r17
+    712e:	cf 93       	push	r28
+    7130:	df 93       	push	r29
+    7132:	cd b7       	in	r28, 0x3d	; 61
+    7134:	de b7       	in	r29, 0x3e	; 62
+    7136:	c4 58       	subi	r28, 0x84	; 132
+    7138:	d1 09       	sbc	r29, r1
+    713a:	0f b6       	in	r0, 0x3f	; 63
+    713c:	f8 94       	cli
+    713e:	de bf       	out	0x3e, r29	; 62
+    7140:	0f be       	out	0x3f, r0	; 63
+    7142:	cd bf       	out	0x3d, r28	; 61
+    7144:	8c 01       	movw	r16, r24
+    uint16_t crc_check = crc16((uint8_t *)booDataRead, booDataRead->common.length + 5);
+    7146:	dc 01       	movw	r26, r24
+    7148:	11 96       	adiw	r26, 0x01	; 1
+    714a:	6c 91       	ld	r22, X
+    714c:	70 e0       	ldi	r23, 0x00	; 0
+    714e:	6b 5f       	subi	r22, 0xFB	; 251
+    7150:	7f 4f       	sbci	r23, 0xFF	; 255
+    7152:	0e 94 15 38 	call	0x702a	; 0x702a <crc16>
+    crc_check = (crc_check >> 8) | (crc_check << 8);
+    7156:	98 27       	eor	r25, r24
+    7158:	89 27       	eor	r24, r25
+    715a:	98 27       	eor	r25, r24
+
+    booDataRead->b_read.address = (booDataRead->b_read.address >> 8) | (booDataRead->b_read.address << 8);
+    715c:	f8 01       	movw	r30, r16
+    715e:	23 81       	ldd	r18, Z+3	; 0x03
+    7160:	34 81       	ldd	r19, Z+4	; 0x04
+    7162:	32 27       	eor	r19, r18
+    7164:	23 27       	eor	r18, r19
+    7166:	32 27       	eor	r19, r18
+    7168:	34 83       	std	Z+4, r19	; 0x04
+    716a:	23 83       	std	Z+3, r18	; 0x03
+    if (crc_check != booDataRead->b_read.crc)
+    716c:	25 81       	ldd	r18, Z+5	; 0x05
+    716e:	36 81       	ldd	r19, Z+6	; 0x06
+    7170:	82 17       	cp	r24, r18
+    7172:	93 07       	cpc	r25, r19
+    7174:	09 f0       	breq	.+2      	; 0x7178 <boot_read_handler+0x4e>
+    7176:	a8 c0       	rjmp	.+336    	; 0x72c8 <boot_read_handler+0x19e>
+        return BOOT_ERROR;
+    }
+	else
+	{
+		// this ACK for cmd frame
+		boot_send_ack();
+    7178:	0e 94 39 38 	call	0x7072	; 0x7072 <boot_send_ack>
+	}
+
+    boot_res_read_frame_t res_frame;
+    res_frame.start = BOOT_START;
+    717c:	85 e5       	ldi	r24, 0x55	; 85
+    717e:	89 83       	std	Y+1, r24	; 0x01
+    res_frame.page = (uint8_t)(booDataRead->b_read.address / 128);
+    7180:	d8 01       	movw	r26, r16
+    7182:	13 96       	adiw	r26, 0x03	; 3
+    7184:	ed 91       	ld	r30, X+
+    7186:	fc 91       	ld	r31, X
+    7188:	14 97       	sbiw	r26, 0x04	; 4
+    718a:	9f 01       	movw	r18, r30
+    718c:	22 0f       	add	r18, r18
+    718e:	23 2f       	mov	r18, r19
+    7190:	22 1f       	adc	r18, r18
+    7192:	33 0b       	sbc	r19, r19
+    7194:	31 95       	neg	r19
+    7196:	2a 83       	std	Y+2, r18	; 0x02
+    uint16_t real_address = res_frame.page * 128;
+    7198:	b0 e8       	ldi	r27, 0x80	; 128
+    719a:	2b 9f       	mul	r18, r27
+    719c:	90 01       	movw	r18, r0
+    719e:	11 24       	eor	r1, r1
+
+    switch (booDataRead->common.command)
+    71a0:	d8 01       	movw	r26, r16
+    71a2:	12 96       	adiw	r26, 0x02	; 2
+    71a4:	8c 91       	ld	r24, X
+    71a6:	88 36       	cpi	r24, 0x68	; 104
+    71a8:	21 f1       	breq	.+72     	; 0x71f2 <boot_read_handler+0xc8>
+    71aa:	89 36       	cpi	r24, 0x69	; 105
+    71ac:	21 f0       	breq	.+8      	; 0x71b6 <boot_read_handler+0x8c>
+    71ae:	87 36       	cpi	r24, 0x67	; 103
+    71b0:	09 f0       	breq	.+2      	; 0x71b4 <boot_read_handler+0x8a>
+    71b2:	8c c0       	rjmp	.+280    	; 0x72cc <boot_read_handler+0x1a2>
+    71b4:	3c c0       	rjmp	.+120    	; 0x722e <boot_read_handler+0x104>
+    {
+    case BOOT_READ_ADD_CMD:
+        res_frame.page = 0xFF;
+    71b6:	8f ef       	ldi	r24, 0xFF	; 255
+    71b8:	8a 83       	std	Y+2, r24	; 0x02
+        res_frame.data[0] = pgm_read_byte(booDataRead->b_read.address);
+    71ba:	e4 91       	lpm	r30, Z
+    71bc:	eb 83       	std	Y+3, r30	; 0x03
+        if (UART_Transmit((uint8_t *)&res_frame, 5, MAX_TIME_OUT) == AVR_OK)
+    71be:	20 e0       	ldi	r18, 0x00	; 0
+    71c0:	32 e1       	ldi	r19, 0x12	; 18
+    71c2:	4a e7       	ldi	r20, 0x7A	; 122
+    71c4:	50 e0       	ldi	r21, 0x00	; 0
+    71c6:	65 e0       	ldi	r22, 0x05	; 5
+    71c8:	70 e0       	ldi	r23, 0x00	; 0
+    71ca:	ce 01       	movw	r24, r28
+    71cc:	01 96       	adiw	r24, 0x01	; 1
+    71ce:	0e 94 52 3b 	call	0x76a4	; 0x76a4 <UART_Transmit>
+    71d2:	81 11       	cpse	r24, r1
+    71d4:	7d c0       	rjmp	.+250    	; 0x72d0 <boot_read_handler+0x1a6>
+    71d6:	81 c0       	rjmp	.+258    	; 0x72da <boot_read_handler+0x1b0>
+        break;
+
+    case BOOT_READ_PAGE_CMD:
+        for (int i = 0; i < 128; i++)
+        {
+            res_frame.data[i] = pgm_read_byte(real_address + i);
+    71d8:	f9 01       	movw	r30, r18
+    71da:	e8 0f       	add	r30, r24
+    71dc:	f9 1f       	adc	r31, r25
+    71de:	e4 91       	lpm	r30, Z
+    71e0:	a3 e0       	ldi	r26, 0x03	; 3
+    71e2:	b0 e0       	ldi	r27, 0x00	; 0
+    71e4:	ac 0f       	add	r26, r28
+    71e6:	bd 1f       	adc	r27, r29
+    71e8:	a8 0f       	add	r26, r24
+    71ea:	b9 1f       	adc	r27, r25
+    71ec:	ec 93       	st	X, r30
+        if (UART_Transmit((uint8_t *)&res_frame, 5, MAX_TIME_OUT) == AVR_OK)
+            return BOOT_OK;
+        break;
+
+    case BOOT_READ_PAGE_CMD:
+        for (int i = 0; i < 128; i++)
+    71ee:	01 96       	adiw	r24, 0x01	; 1
+    71f0:	02 c0       	rjmp	.+4      	; 0x71f6 <boot_read_handler+0xcc>
+    boot_res_read_frame_t res_frame;
+    res_frame.start = BOOT_START;
+    res_frame.page = (uint8_t)(booDataRead->b_read.address / 128);
+    uint16_t real_address = res_frame.page * 128;
+
+    switch (booDataRead->common.command)
+    71f2:	80 e0       	ldi	r24, 0x00	; 0
+    71f4:	90 e0       	ldi	r25, 0x00	; 0
+        if (UART_Transmit((uint8_t *)&res_frame, 5, MAX_TIME_OUT) == AVR_OK)
+            return BOOT_OK;
+        break;
+
+    case BOOT_READ_PAGE_CMD:
+        for (int i = 0; i < 128; i++)
+    71f6:	80 38       	cpi	r24, 0x80	; 128
+    71f8:	91 05       	cpc	r25, r1
+    71fa:	74 f3       	brlt	.-36     	; 0x71d8 <boot_read_handler+0xae>
+        {
+            res_frame.data[i] = pgm_read_byte(real_address + i);
+        }
+        res_frame.crc = crc16((uint8_t *)&res_frame, sizeof(res_frame) - 2);
+    71fc:	62 e8       	ldi	r22, 0x82	; 130
+    71fe:	70 e0       	ldi	r23, 0x00	; 0
+    7200:	ce 01       	movw	r24, r28
+    7202:	01 96       	adiw	r24, 0x01	; 1
+    7204:	0e 94 15 38 	call	0x702a	; 0x702a <crc16>
+    7208:	cd 57       	subi	r28, 0x7D	; 125
+    720a:	df 4f       	sbci	r29, 0xFF	; 255
+    720c:	99 83       	std	Y+1, r25	; 0x01
+    720e:	88 83       	st	Y, r24
+    7210:	c3 58       	subi	r28, 0x83	; 131
+    7212:	d0 40       	sbci	r29, 0x00	; 0
+        if (UART_Transmit((uint8_t *)&res_frame, sizeof(boot_res_read_frame_t), MAX_TIME_OUT) == AVR_OK)
+    7214:	20 e0       	ldi	r18, 0x00	; 0
+    7216:	32 e1       	ldi	r19, 0x12	; 18
+    7218:	4a e7       	ldi	r20, 0x7A	; 122
+    721a:	50 e0       	ldi	r21, 0x00	; 0
+    721c:	64 e8       	ldi	r22, 0x84	; 132
+    721e:	70 e0       	ldi	r23, 0x00	; 0
+    7220:	ce 01       	movw	r24, r28
+    7222:	01 96       	adiw	r24, 0x01	; 1
+    7224:	0e 94 52 3b 	call	0x76a4	; 0x76a4 <UART_Transmit>
+    7228:	81 11       	cpse	r24, r1
+    722a:	54 c0       	rjmp	.+168    	; 0x72d4 <boot_read_handler+0x1aa>
+    722c:	56 c0       	rjmp	.+172    	; 0x72da <boot_read_handler+0x1b0>
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+    722e:	bf ef       	ldi	r27, 0xFF	; 255
+    7230:	e6 e7       	ldi	r30, 0x76	; 118
+    7232:	f1 e0       	ldi	r31, 0x01	; 1
+    7234:	b1 50       	subi	r27, 0x01	; 1
+    7236:	e0 40       	sbci	r30, 0x00	; 0
+    7238:	f0 40       	sbci	r31, 0x00	; 0
+    723a:	e1 f7       	brne	.-8      	; 0x7234 <boot_read_handler+0x10a>
+    723c:	00 c0       	rjmp	.+0      	; 0x723e <boot_read_handler+0x114>
+    723e:	00 00       	nop
+            return BOOT_OK;
+        break;
+
+    case BOOT_READ_ALL_CMD:
+        _delay_ms(30);
+        for (int i = 0; i < 200; i++)
+    7240:	00 e0       	ldi	r16, 0x00	; 0
+    7242:	10 e0       	ldi	r17, 0x00	; 0
+    7244:	3b c0       	rjmp	.+118    	; 0x72bc <boot_read_handler+0x192>
+        {
+            res_frame.page = i;
+    7246:	0a 83       	std	Y+2, r16	; 0x02
+            for (int j = 0; j < 128; j++)
+    7248:	80 e0       	ldi	r24, 0x00	; 0
+    724a:	90 e0       	ldi	r25, 0x00	; 0
+    724c:	11 c0       	rjmp	.+34     	; 0x7270 <boot_read_handler+0x146>
+            {
+                res_frame.data[j] = pgm_read_byte(i * 128 + j);
+    724e:	f8 01       	movw	r30, r16
+    7250:	f6 95       	lsr	r31
+    7252:	fe 2f       	mov	r31, r30
+    7254:	ee 27       	eor	r30, r30
+    7256:	f7 95       	ror	r31
+    7258:	e7 95       	ror	r30
+    725a:	e8 0f       	add	r30, r24
+    725c:	f9 1f       	adc	r31, r25
+    725e:	e4 91       	lpm	r30, Z
+    7260:	a3 e0       	ldi	r26, 0x03	; 3
+    7262:	b0 e0       	ldi	r27, 0x00	; 0
+    7264:	ac 0f       	add	r26, r28
+    7266:	bd 1f       	adc	r27, r29
+    7268:	a8 0f       	add	r26, r24
+    726a:	b9 1f       	adc	r27, r25
+    726c:	ec 93       	st	X, r30
+    case BOOT_READ_ALL_CMD:
+        _delay_ms(30);
+        for (int i = 0; i < 200; i++)
+        {
+            res_frame.page = i;
+            for (int j = 0; j < 128; j++)
+    726e:	01 96       	adiw	r24, 0x01	; 1
+    7270:	80 38       	cpi	r24, 0x80	; 128
+    7272:	91 05       	cpc	r25, r1
+    7274:	64 f3       	brlt	.-40     	; 0x724e <boot_read_handler+0x124>
+            {
+                res_frame.data[j] = pgm_read_byte(i * 128 + j);
+            }
+            res_frame.crc = crc16((uint8_t *)&res_frame, sizeof(res_frame) - 2);
+    7276:	62 e8       	ldi	r22, 0x82	; 130
+    7278:	70 e0       	ldi	r23, 0x00	; 0
+    727a:	ce 01       	movw	r24, r28
+    727c:	01 96       	adiw	r24, 0x01	; 1
+    727e:	0e 94 15 38 	call	0x702a	; 0x702a <crc16>
+    7282:	cd 57       	subi	r28, 0x7D	; 125
+    7284:	df 4f       	sbci	r29, 0xFF	; 255
+    7286:	99 83       	std	Y+1, r25	; 0x01
+    7288:	88 83       	st	Y, r24
+    728a:	c3 58       	subi	r28, 0x83	; 131
+    728c:	d0 40       	sbci	r29, 0x00	; 0
+
+            if (UART_Transmit((uint8_t *)&res_frame, sizeof(boot_res_read_frame_t), MAX_TIME_OUT) != AVR_OK)
+    728e:	20 e0       	ldi	r18, 0x00	; 0
+    7290:	32 e1       	ldi	r19, 0x12	; 18
+    7292:	4a e7       	ldi	r20, 0x7A	; 122
+    7294:	50 e0       	ldi	r21, 0x00	; 0
+    7296:	64 e8       	ldi	r22, 0x84	; 132
+    7298:	70 e0       	ldi	r23, 0x00	; 0
+    729a:	ce 01       	movw	r24, r28
+    729c:	01 96       	adiw	r24, 0x01	; 1
+    729e:	0e 94 52 3b 	call	0x76a4	; 0x76a4 <UART_Transmit>
+    72a2:	81 11       	cpse	r24, r1
+    72a4:	19 c0       	rjmp	.+50     	; 0x72d8 <boot_read_handler+0x1ae>
+    72a6:	2f e7       	ldi	r18, 0x7F	; 127
+    72a8:	85 eb       	ldi	r24, 0xB5	; 181
+    72aa:	91 e0       	ldi	r25, 0x01	; 1
+    72ac:	21 50       	subi	r18, 0x01	; 1
+    72ae:	80 40       	sbci	r24, 0x00	; 0
+    72b0:	90 40       	sbci	r25, 0x00	; 0
+    72b2:	e1 f7       	brne	.-8      	; 0x72ac <boot_read_handler+0x182>
+    72b4:	00 c0       	rjmp	.+0      	; 0x72b6 <boot_read_handler+0x18c>
+    72b6:	00 00       	nop
+            return BOOT_OK;
+        break;
+
+    case BOOT_READ_ALL_CMD:
+        _delay_ms(30);
+        for (int i = 0; i < 200; i++)
+    72b8:	0f 5f       	subi	r16, 0xFF	; 255
+    72ba:	1f 4f       	sbci	r17, 0xFF	; 255
+    72bc:	08 3c       	cpi	r16, 0xC8	; 200
+    72be:	11 05       	cpc	r17, r1
+    72c0:	0c f4       	brge	.+2      	; 0x72c4 <boot_read_handler+0x19a>
+    72c2:	c1 cf       	rjmp	.-126    	; 0x7246 <boot_read_handler+0x11c>
+            if (UART_Transmit((uint8_t *)&res_frame, sizeof(boot_res_read_frame_t), MAX_TIME_OUT) != AVR_OK)
+                return AVR_ERROR;
+			_delay_ms(35);
+        }
+		// this for all of page in ATmega328
+        return BOOT_OK;
+    72c4:	80 e0       	ldi	r24, 0x00	; 0
+    72c6:	09 c0       	rjmp	.+18     	; 0x72da <boot_read_handler+0x1b0>
+    crc_check = (crc_check >> 8) | (crc_check << 8);
+
+    booDataRead->b_read.address = (booDataRead->b_read.address >> 8) | (booDataRead->b_read.address << 8);
+    if (crc_check != booDataRead->b_read.crc)
+    {
+        return BOOT_ERROR;
+    72c8:	81 e0       	ldi	r24, 0x01	; 1
+    72ca:	07 c0       	rjmp	.+14     	; 0x72da <boot_read_handler+0x1b0>
+        return BOOT_OK;
+
+    default:
+        break;
+    }
+    return BOOT_ERROR;
+    72cc:	81 e0       	ldi	r24, 0x01	; 1
+    72ce:	05 c0       	rjmp	.+10     	; 0x72da <boot_read_handler+0x1b0>
+    72d0:	81 e0       	ldi	r24, 0x01	; 1
+    72d2:	03 c0       	rjmp	.+6      	; 0x72da <boot_read_handler+0x1b0>
+    72d4:	81 e0       	ldi	r24, 0x01	; 1
+    72d6:	01 c0       	rjmp	.+2      	; 0x72da <boot_read_handler+0x1b0>
+                res_frame.data[j] = pgm_read_byte(i * 128 + j);
+            }
+            res_frame.crc = crc16((uint8_t *)&res_frame, sizeof(res_frame) - 2);
+
+            if (UART_Transmit((uint8_t *)&res_frame, sizeof(boot_res_read_frame_t), MAX_TIME_OUT) != AVR_OK)
+                return AVR_ERROR;
+    72d8:	81 e0       	ldi	r24, 0x01	; 1
+
+    default:
+        break;
+    }
+    return BOOT_ERROR;
+}
+    72da:	cc 57       	subi	r28, 0x7C	; 124
+    72dc:	df 4f       	sbci	r29, 0xFF	; 255
+    72de:	0f b6       	in	r0, 0x3f	; 63
+    72e0:	f8 94       	cli
+    72e2:	de bf       	out	0x3e, r29	; 62
+    72e4:	0f be       	out	0x3f, r0	; 63
+    72e6:	cd bf       	out	0x3d, r28	; 61
+    72e8:	df 91       	pop	r29
+    72ea:	cf 91       	pop	r28
+    72ec:	1f 91       	pop	r17
+    72ee:	0f 91       	pop	r16
+    72f0:	08 95       	ret
+
+000072f2 <boot_erase_handler>:
+
+boot_status_t boot_erase_handler(boot_erase_frame_t *booDataEarse)
+{
+    72f2:	cf 93       	push	r28
+    72f4:	df 93       	push	r29
+    72f6:	ec 01       	movw	r28, r24
+    uint16_t crc_check = crc16((uint8_t *)booDataEarse, booDataEarse->common.length + 5);
+    72f8:	69 81       	ldd	r22, Y+1	; 0x01
+    72fa:	70 e0       	ldi	r23, 0x00	; 0
+    72fc:	6b 5f       	subi	r22, 0xFB	; 251
+    72fe:	7f 4f       	sbci	r23, 0xFF	; 255
+    7300:	0e 94 15 38 	call	0x702a	; 0x702a <crc16>
+    crc_check = (crc_check >> 8) | (crc_check << 8);
+    7304:	98 27       	eor	r25, r24
+    7306:	89 27       	eor	r24, r25
+    7308:	98 27       	eor	r25, r24
+
+    booDataEarse->b_erase.address = (booDataEarse->b_erase.address >> 8) | (booDataEarse->b_erase.address << 8);
+    730a:	2b 81       	ldd	r18, Y+3	; 0x03
+    730c:	3c 81       	ldd	r19, Y+4	; 0x04
+    730e:	32 27       	eor	r19, r18
+    7310:	23 27       	eor	r18, r19
+    7312:	32 27       	eor	r19, r18
+    7314:	3c 83       	std	Y+4, r19	; 0x04
+    7316:	2b 83       	std	Y+3, r18	; 0x03
+    if (crc_check != booDataEarse->b_erase.crc)
+    7318:	2d 81       	ldd	r18, Y+5	; 0x05
+    731a:	3e 81       	ldd	r19, Y+6	; 0x06
+    731c:	82 17       	cp	r24, r18
+    731e:	93 07       	cpc	r25, r19
+    7320:	71 f0       	breq	.+28     	; 0x733e <boot_erase_handler+0x4c>
+    {
+        boot_send_nack();
+    7322:	0e 94 51 38 	call	0x70a2	; 0x70a2 <boot_send_nack>
+        return BOOT_ERROR;
+    7326:	81 e0       	ldi	r24, 0x01	; 1
+    7328:	10 c0       	rjmp	.+32     	; 0x734a <boot_erase_handler+0x58>
+    }
+    for (int i = 0; i < 20; i++)
+    {
+        uint16_t real_address = 128 * i;
+        flash_erase_page(real_address);
+    732a:	ce 01       	movw	r24, r28
+    732c:	96 95       	lsr	r25
+    732e:	98 2f       	mov	r25, r24
+    7330:	88 27       	eor	r24, r24
+    7332:	97 95       	ror	r25
+    7334:	87 95       	ror	r24
+    7336:	0e 94 ab 39 	call	0x7356	; 0x7356 <flash_erase_page>
+    if (crc_check != booDataEarse->b_erase.crc)
+    {
+        boot_send_nack();
+        return BOOT_ERROR;
+    }
+    for (int i = 0; i < 20; i++)
+    733a:	21 96       	adiw	r28, 0x01	; 1
+    733c:	02 c0       	rjmp	.+4      	; 0x7342 <boot_erase_handler+0x50>
+    733e:	c0 e0       	ldi	r28, 0x00	; 0
+    7340:	d0 e0       	ldi	r29, 0x00	; 0
+    7342:	c4 31       	cpi	r28, 0x14	; 20
+    7344:	d1 05       	cpc	r29, r1
+    7346:	8c f3       	brlt	.-30     	; 0x732a <boot_erase_handler+0x38>
+    {
+        uint16_t real_address = 128 * i;
+        flash_erase_page(real_address);
+    }
+    return BOOT_OK;
+    7348:	80 e0       	ldi	r24, 0x00	; 0
+    734a:	df 91       	pop	r29
+    734c:	cf 91       	pop	r28
+    734e:	08 95       	ret
+
+00007350 <is_spm_busy>:
+}
+
+void flash_fill_buffer(uint16_t address, uint16_t data)
+{
+    SPMCSR = __BOOT_PAGE_FILL;
+    __asm__ __volatile__(
+    7350:	87 b7       	in	r24, 0x37	; 55
+    7352:	81 70       	andi	r24, 0x01	; 1
+    7354:	08 95       	ret
+
+00007356 <flash_erase_page>:
+    7356:	23 e0       	ldi	r18, 0x03	; 3
+    7358:	27 bf       	out	0x37, r18	; 55
+    735a:	fc 01       	movw	r30, r24
+    735c:	e8 95       	spm
+    735e:	0e 94 a8 39 	call	0x7350	; 0x7350 <is_spm_busy>
+    7362:	81 11       	cpse	r24, r1
+    7364:	fc cf       	rjmp	.-8      	; 0x735e <flash_erase_page+0x8>
+    7366:	08 95       	ret
+
+00007368 <flash_write_data>:
+        "z"(address)
+        : "r0");
+}
+
+void flash_write_data(uint16_t address, const uint8_t *data, uint16_t size)
+{
+    7368:	4f 92       	push	r4
+    736a:	5f 92       	push	r5
+    736c:	6f 92       	push	r6
+    736e:	7f 92       	push	r7
+    7370:	8f 92       	push	r8
+    7372:	9f 92       	push	r9
+    7374:	af 92       	push	r10
+    7376:	bf 92       	push	r11
+    7378:	cf 92       	push	r12
+    737a:	df 92       	push	r13
+    737c:	ef 92       	push	r14
+    737e:	ff 92       	push	r15
+    7380:	0f 93       	push	r16
+    7382:	1f 93       	push	r17
+    7384:	cf 93       	push	r28
+    7386:	df 93       	push	r29
+    7388:	4c 01       	movw	r8, r24
+    738a:	eb 01       	movw	r28, r22
+    uint8_t sreg = SREG;
+    738c:	4f b6       	in	r4, 0x3f	; 63
+    uint16_t tmpAddress = address;
+    cli();
+    738e:	f8 94       	cli
+    uint16_t tmpData = (size + SPM_PAGESIZE - 1) / SPM_PAGESIZE;
+    7390:	5a 01       	movw	r10, r20
+    7392:	8f e7       	ldi	r24, 0x7F	; 127
+    7394:	a8 0e       	add	r10, r24
+    7396:	b1 1c       	adc	r11, r1
+    7398:	aa 0c       	add	r10, r10
+    739a:	ab 2c       	mov	r10, r11
+    739c:	aa 1c       	adc	r10, r10
+    739e:	bb 08       	sbc	r11, r11
+    73a0:	b1 94       	neg	r11
+    uint8_t lastDate = (size - 1) % SPM_PAGESIZE;
+    73a2:	41 50       	subi	r20, 0x01	; 1
+    73a4:	4f 77       	andi	r20, 0x7F	; 127
+    73a6:	54 2e       	mov	r5, r20
+    int loop = SPM_PAGESIZE;
+    for (int i = 0; i < tmpData; i++)
+    73a8:	c1 2c       	mov	r12, r1
+    73aa:	d1 2c       	mov	r13, r1
+    uint8_t sreg = SREG;
+    uint16_t tmpAddress = address;
+    cli();
+    uint16_t tmpData = (size + SPM_PAGESIZE - 1) / SPM_PAGESIZE;
+    uint8_t lastDate = (size - 1) % SPM_PAGESIZE;
+    int loop = SPM_PAGESIZE;
+    73ac:	68 94       	set
+    73ae:	ee 24       	eor	r14, r14
+    73b0:	e7 f8       	bld	r14, 7
+    73b2:	f1 2c       	mov	r15, r1
+    for (int i = 0; i < tmpData; i++)
+    73b4:	3c c0       	rjmp	.+120    	; 0x742e <flash_write_data+0xc6>
+    {
+        tmpAddress = address + SPM_PAGESIZE * i;
+    73b6:	86 01       	movw	r16, r12
+    73b8:	16 95       	lsr	r17
+    73ba:	10 2f       	mov	r17, r16
+    73bc:	00 27       	eor	r16, r16
+    73be:	17 95       	ror	r17
+    73c0:	07 95       	ror	r16
+    73c2:	08 0d       	add	r16, r8
+    73c4:	19 1d       	adc	r17, r9
+        flash_erase_page(tmpAddress);
+    73c6:	c8 01       	movw	r24, r16
+    73c8:	0e 94 ab 39 	call	0x7356	; 0x7356 <flash_erase_page>
+        if (i == tmpData - 1)
+    73cc:	c5 01       	movw	r24, r10
+    73ce:	01 97       	sbiw	r24, 0x01	; 1
+    73d0:	68 16       	cp	r6, r24
+    73d2:	79 06       	cpc	r7, r25
+    73d4:	29 f4       	brne	.+10     	; 0x73e0 <flash_write_data+0x78>
+            loop = lastDate + 1;
+    73d6:	e5 2c       	mov	r14, r5
+    73d8:	f1 2c       	mov	r15, r1
+    73da:	ef ef       	ldi	r30, 0xFF	; 255
+    73dc:	ee 1a       	sub	r14, r30
+    73de:	fe 0a       	sbc	r15, r30
+        for (uint16_t j = 0; j < loop; j += 2)
+    73e0:	20 e0       	ldi	r18, 0x00	; 0
+    73e2:	30 e0       	ldi	r19, 0x00	; 0
+    73e4:	16 c0       	rjmp	.+44     	; 0x7412 <flash_write_data+0xaa>
+        {
+            uint16_t w = *data++;
+    73e6:	68 81       	ld	r22, Y
+            w += (*data++) << 8;
+    73e8:	ae 01       	movw	r20, r28
+    73ea:	4e 5f       	subi	r20, 0xFE	; 254
+    73ec:	5f 4f       	sbci	r21, 0xFF	; 255
+    73ee:	89 81       	ldd	r24, Y+1	; 0x01
+    73f0:	90 e0       	ldi	r25, 0x00	; 0
+    73f2:	98 2f       	mov	r25, r24
+    73f4:	88 27       	eor	r24, r24
+    73f6:	86 0f       	add	r24, r22
+    73f8:	91 1d       	adc	r25, r1
+            boot_page_fill(tmpAddress + j, w);
+    73fa:	f9 01       	movw	r30, r18
+    73fc:	e0 0f       	add	r30, r16
+    73fe:	f1 1f       	adc	r31, r17
+    7400:	61 e0       	ldi	r22, 0x01	; 1
+    7402:	0c 01       	movw	r0, r24
+    7404:	60 93 57 00 	sts	0x0057, r22	; 0x800057 <__TEXT_REGION_LENGTH__+0x7e0057>
+    7408:	e8 95       	spm
+    740a:	11 24       	eor	r1, r1
+    {
+        tmpAddress = address + SPM_PAGESIZE * i;
+        flash_erase_page(tmpAddress);
+        if (i == tmpData - 1)
+            loop = lastDate + 1;
+        for (uint16_t j = 0; j < loop; j += 2)
+    740c:	2e 5f       	subi	r18, 0xFE	; 254
+    740e:	3f 4f       	sbci	r19, 0xFF	; 255
+        {
+            uint16_t w = *data++;
+            w += (*data++) << 8;
+    7410:	ea 01       	movw	r28, r20
+    {
+        tmpAddress = address + SPM_PAGESIZE * i;
+        flash_erase_page(tmpAddress);
+        if (i == tmpData - 1)
+            loop = lastDate + 1;
+        for (uint16_t j = 0; j < loop; j += 2)
+    7412:	2e 15       	cp	r18, r14
+    7414:	3f 05       	cpc	r19, r15
+    7416:	38 f3       	brcs	.-50     	; 0x73e6 <flash_write_data+0x7e>
+            uint16_t w = *data++;
+            w += (*data++) << 8;
+            boot_page_fill(tmpAddress + j, w);
+        }
+
+        SPMCSR = __BOOT_PAGE_WRITE;
+    7418:	85 e0       	ldi	r24, 0x05	; 5
+    741a:	87 bf       	out	0x37, r24	; 55
+        __asm__ __volatile__(
+    741c:	f8 01       	movw	r30, r16
+    741e:	e8 95       	spm
+            "spm\n\t" ::"z"(tmpAddress));
+        while (is_spm_busy())
+    7420:	0e 94 a8 39 	call	0x7350	; 0x7350 <is_spm_busy>
+    7424:	81 11       	cpse	r24, r1
+    7426:	fc cf       	rjmp	.-8      	; 0x7420 <flash_write_data+0xb8>
+    uint16_t tmpAddress = address;
+    cli();
+    uint16_t tmpData = (size + SPM_PAGESIZE - 1) / SPM_PAGESIZE;
+    uint8_t lastDate = (size - 1) % SPM_PAGESIZE;
+    int loop = SPM_PAGESIZE;
+    for (int i = 0; i < tmpData; i++)
+    7428:	ff ef       	ldi	r31, 0xFF	; 255
+    742a:	cf 1a       	sub	r12, r31
+    742c:	df 0a       	sbc	r13, r31
+    742e:	36 01       	movw	r6, r12
+    7430:	ca 14       	cp	r12, r10
+    7432:	db 04       	cpc	r13, r11
+    7434:	08 f4       	brcc	.+2      	; 0x7438 <flash_write_data+0xd0>
+    7436:	bf cf       	rjmp	.-130    	; 0x73b6 <flash_write_data+0x4e>
+        __asm__ __volatile__(
+            "spm\n\t" ::"z"(tmpAddress));
+        while (is_spm_busy())
+            ;
+    }
+    SPMCSR = __BOOT_RWW_ENABLE;
+    7438:	81 e1       	ldi	r24, 0x11	; 17
+    743a:	87 bf       	out	0x37, r24	; 55
+    __asm__ __volatile__(
+    743c:	e8 95       	spm
+        "spm\n\t");
+    SREG = sreg;
+    743e:	4f be       	out	0x3f, r4	; 63
+}
+    7440:	df 91       	pop	r29
+    7442:	cf 91       	pop	r28
+    7444:	1f 91       	pop	r17
+    7446:	0f 91       	pop	r16
+    7448:	ff 90       	pop	r15
+    744a:	ef 90       	pop	r14
+    744c:	df 90       	pop	r13
+    744e:	cf 90       	pop	r12
+    7450:	bf 90       	pop	r11
+    7452:	af 90       	pop	r10
+    7454:	9f 90       	pop	r9
+    7456:	8f 90       	pop	r8
+    7458:	7f 90       	pop	r7
+    745a:	6f 90       	pop	r6
+    745c:	5f 90       	pop	r5
+    745e:	4f 90       	pop	r4
+    7460:	08 95       	ret
+
+00007462 <gpio_init>:
+void startup_code(void) __attribute__((naked)) __attribute__((section(".init8")));
+void boot_main(void);
+
+void gpio_init()
+{
+    DDRC = 0xFFu;
+    7462:	8f ef       	ldi	r24, 0xFF	; 255
+    7464:	87 b9       	out	0x07, r24	; 7
+    DDRD &= ~(1 << DDD4);
+    7466:	8a b1       	in	r24, 0x0a	; 10
+    7468:	8f 7e       	andi	r24, 0xEF	; 239
+    746a:	8a b9       	out	0x0a, r24	; 10
+    PORTD |= (1 << PORTD4);
+    746c:	8b b1       	in	r24, 0x0b	; 11
+    746e:	80 61       	ori	r24, 0x10	; 16
+    7470:	8b b9       	out	0x0b, r24	; 11
+    7472:	08 95       	ret
+
+00007474 <toggle_led>:
+}
+
+void toggle_led()
+{
+    PORTC ^= (1 << DDC0);
+    7474:	98 b1       	in	r25, 0x08	; 8
+    7476:	81 e0       	ldi	r24, 0x01	; 1
+    7478:	89 27       	eor	r24, r25
+    747a:	88 b9       	out	0x08, r24	; 8
+    747c:	08 95       	ret
+
+0000747e <boot_main>:
+    UART_Transmit(dataReset, sizeof(dataReset), 10000);
+    boot_main();
+}
+
+void boot_main()
+{
+    747e:	cf 93       	push	r28
+    7480:	df 93       	push	r29
+    7482:	cd b7       	in	r28, 0x3d	; 61
+    7484:	de b7       	in	r29, 0x3e	; 62
+    7486:	c7 58       	subi	r28, 0x87	; 135
+    7488:	d1 09       	sbc	r29, r1
+    748a:	0f b6       	in	r0, 0x3f	; 63
+    748c:	f8 94       	cli
+    748e:	de bf       	out	0x3e, r29	; 62
+    7490:	0f be       	out	0x3f, r0	; 63
+    7492:	cd bf       	out	0x3d, r28	; 61
+    uint8_t boot_data[sizeof(boot_write_frame_t)] = {0};
+    7494:	fe 01       	movw	r30, r28
+    7496:	31 96       	adiw	r30, 0x01	; 1
+    7498:	87 e8       	ldi	r24, 0x87	; 135
+    749a:	df 01       	movw	r26, r30
+    749c:	1d 92       	st	X+, r1
+    749e:	8a 95       	dec	r24
+    74a0:	e9 f7       	brne	.-6      	; 0x749c <boot_main+0x1e>
+    while (1)
+    {
+        // Nhận và xử lý dữ liệu từ UART
+        do
+        {
+            UART_Receive(boot_data, 1, 20000);
+    74a2:	20 e2       	ldi	r18, 0x20	; 32
+    74a4:	3e e4       	ldi	r19, 0x4E	; 78
+    74a6:	40 e0       	ldi	r20, 0x00	; 0
+    74a8:	50 e0       	ldi	r21, 0x00	; 0
+    74aa:	61 e0       	ldi	r22, 0x01	; 1
+    74ac:	70 e0       	ldi	r23, 0x00	; 0
+    74ae:	ce 01       	movw	r24, r28
+    74b0:	01 96       	adiw	r24, 0x01	; 1
+    74b2:	0e 94 85 3b 	call	0x770a	; 0x770a <UART_Receive>
+            if ((PIND & (1 << PORTD4)) == 0)
+    74b6:	4c 99       	sbic	0x09, 4	; 9
+    74b8:	02 c0       	rjmp	.+4      	; 0x74be <boot_main+0x40>
+                __asm__ volatile("jmp 0x0000");
+    74ba:	0c 94 00 00 	jmp	0	; 0x0 <__TEXT_REGION_ORIGIN__>
+
+        } while ((boot_data[0] != BOOT_START));
+    74be:	89 81       	ldd	r24, Y+1	; 0x01
+    74c0:	85 35       	cpi	r24, 0x55	; 85
+    74c2:	79 f7       	brne	.-34     	; 0x74a2 <boot_main+0x24>
+
+        UART_Receive(&boot_data[1], 1, MAX_TIME_OUT);
+    74c4:	20 e0       	ldi	r18, 0x00	; 0
+    74c6:	32 e1       	ldi	r19, 0x12	; 18
+    74c8:	4a e7       	ldi	r20, 0x7A	; 122
+    74ca:	50 e0       	ldi	r21, 0x00	; 0
+    74cc:	61 e0       	ldi	r22, 0x01	; 1
+    74ce:	70 e0       	ldi	r23, 0x00	; 0
+    74d0:	ce 01       	movw	r24, r28
+    74d2:	02 96       	adiw	r24, 0x02	; 2
+    74d4:	0e 94 85 3b 	call	0x770a	; 0x770a <UART_Receive>
+        UART_Receive(&boot_data[2], (boot_data[1] + 5), MAX_TIME_OUT);
+    74d8:	6a 81       	ldd	r22, Y+2	; 0x02
+    74da:	70 e0       	ldi	r23, 0x00	; 0
+    74dc:	6b 5f       	subi	r22, 0xFB	; 251
+    74de:	7f 4f       	sbci	r23, 0xFF	; 255
+    74e0:	20 e0       	ldi	r18, 0x00	; 0
+    74e2:	32 e1       	ldi	r19, 0x12	; 18
+    74e4:	4a e7       	ldi	r20, 0x7A	; 122
+    74e6:	50 e0       	ldi	r21, 0x00	; 0
+    74e8:	ce 01       	movw	r24, r28
+    74ea:	03 96       	adiw	r24, 0x03	; 3
+    74ec:	0e 94 85 3b 	call	0x770a	; 0x770a <UART_Receive>
+
+        switch (boot_data[2])
+    74f0:	8b 81       	ldd	r24, Y+3	; 0x03
+    74f2:	87 37       	cpi	r24, 0x77	; 119
+    74f4:	09 f4       	brne	.+2      	; 0x74f8 <boot_main+0x7a>
+    74f6:	45 c0       	rjmp	.+138    	; 0x7582 <boot_main+0x104>
+    74f8:	20 f4       	brcc	.+8      	; 0x7502 <boot_main+0x84>
+    74fa:	87 56       	subi	r24, 0x67	; 103
+    74fc:	83 30       	cpi	r24, 0x03	; 3
+    74fe:	98 f1       	brcs	.+102    	; 0x7566 <boot_main+0xe8>
+    7500:	4d c0       	rjmp	.+154    	; 0x759c <boot_main+0x11e>
+    7502:	86 39       	cpi	r24, 0x96	; 150
+    7504:	09 f0       	breq	.+2      	; 0x7508 <boot_main+0x8a>
+    7506:	4a c0       	rjmp	.+148    	; 0x759c <boot_main+0x11e>
+        {
+        case BOOT_WRITE_CMD:
+
+            if (boot_data[1] == 128)
+    7508:	8a 81       	ldd	r24, Y+2	; 0x02
+    750a:	80 38       	cpi	r24, 0x80	; 128
+    750c:	f1 f0       	breq	.+60     	; 0x754a <boot_main+0xcc>
+            {
+                boDataWrite = (boot_write_frame_t *)boot_data;
+            }
+            else
+            {
+                uint16_t crc = (boot_data[6 + boot_data[1]] << 8) | boot_data[5 + boot_data[1]];
+    750e:	90 e0       	ldi	r25, 0x00	; 0
+    7510:	fc 01       	movw	r30, r24
+    7512:	36 96       	adiw	r30, 0x06	; 6
+    7514:	21 e0       	ldi	r18, 0x01	; 1
+    7516:	30 e0       	ldi	r19, 0x00	; 0
+    7518:	2c 0f       	add	r18, r28
+    751a:	3d 1f       	adc	r19, r29
+    751c:	e2 0f       	add	r30, r18
+    751e:	f3 1f       	adc	r31, r19
+    7520:	20 81       	ld	r18, Z
+    7522:	30 e0       	ldi	r19, 0x00	; 0
+    7524:	32 2f       	mov	r19, r18
+    7526:	22 27       	eor	r18, r18
+    7528:	05 96       	adiw	r24, 0x05	; 5
+    752a:	e1 e0       	ldi	r30, 0x01	; 1
+    752c:	f0 e0       	ldi	r31, 0x00	; 0
+    752e:	ec 0f       	add	r30, r28
+    7530:	fd 1f       	adc	r31, r29
+    7532:	e8 0f       	add	r30, r24
+    7534:	f9 1f       	adc	r31, r25
+    7536:	80 81       	ld	r24, Z
+    7538:	a9 01       	movw	r20, r18
+    753a:	48 2b       	or	r20, r24
+    753c:	ca 01       	movw	r24, r20
+                boDataWrite = (boot_write_frame_t *)boot_data;
+                boDataWrite->b_write.crc = crc;
+    753e:	ca 57       	subi	r28, 0x7A	; 122
+    7540:	df 4f       	sbci	r29, 0xFF	; 255
+    7542:	99 83       	std	Y+1, r25	; 0x01
+    7544:	88 83       	st	Y, r24
+    7546:	c6 58       	subi	r28, 0x86	; 134
+    7548:	d0 40       	sbci	r29, 0x00	; 0
+            }
+
+            toggle_led();
+    754a:	0e 94 3a 3a 	call	0x7474	; 0x7474 <toggle_led>
+            if (boot_write_handler(boDataWrite) == BOOT_OK)
+    754e:	ce 01       	movw	r24, r28
+    7550:	01 96       	adiw	r24, 0x01	; 1
+    7552:	0e 94 69 38 	call	0x70d2	; 0x70d2 <boot_write_handler>
+    7556:	81 11       	cpse	r24, r1
+    7558:	03 c0       	rjmp	.+6      	; 0x7560 <boot_main+0xe2>
+            {
+                boot_send_ack();
+    755a:	0e 94 39 38 	call	0x7072	; 0x7072 <boot_send_ack>
+    755e:	1e c0       	rjmp	.+60     	; 0x759c <boot_main+0x11e>
+            }
+            else
+            {
+                boot_send_nack();
+    7560:	0e 94 51 38 	call	0x70a2	; 0x70a2 <boot_send_nack>
+    7564:	1b c0       	rjmp	.+54     	; 0x759c <boot_main+0x11e>
+            break;
+
+        case BOOT_READ_ADD_CMD:
+        case BOOT_READ_PAGE_CMD:
+        case BOOT_READ_ALL_CMD:
+            toggle_led();
+    7566:	0e 94 3a 3a 	call	0x7474	; 0x7474 <toggle_led>
+            boDataRead = (boot_read_frame_t *)boot_data;
+            if (boot_read_handler(boDataRead) == BOOT_OK)
+    756a:	ce 01       	movw	r24, r28
+    756c:	01 96       	adiw	r24, 0x01	; 1
+    756e:	0e 94 95 38 	call	0x712a	; 0x712a <boot_read_handler>
+    7572:	81 11       	cpse	r24, r1
+    7574:	03 c0       	rjmp	.+6      	; 0x757c <boot_main+0xfe>
+            {
+                boot_send_ack();
+    7576:	0e 94 39 38 	call	0x7072	; 0x7072 <boot_send_ack>
+    757a:	10 c0       	rjmp	.+32     	; 0x759c <boot_main+0x11e>
+            }
+            else
+            {
+                boot_send_nack();
+    757c:	0e 94 51 38 	call	0x70a2	; 0x70a2 <boot_send_nack>
+    7580:	0d c0       	rjmp	.+26     	; 0x759c <boot_main+0x11e>
+            }
+            break;
+
+        case BOOT_ERASE_CMD:
+            toggle_led();
+    7582:	0e 94 3a 3a 	call	0x7474	; 0x7474 <toggle_led>
+            boDataErase = (boot_erase_frame_t *)boot_data;
+            if (boot_erase_handler(boDataErase) != BOOT_OK)
+    7586:	ce 01       	movw	r24, r28
+    7588:	01 96       	adiw	r24, 0x01	; 1
+    758a:	0e 94 79 39 	call	0x72f2	; 0x72f2 <boot_erase_handler>
+    758e:	88 23       	and	r24, r24
+    7590:	19 f0       	breq	.+6      	; 0x7598 <boot_main+0x11a>
+            {
+                boot_send_nack();
+    7592:	0e 94 51 38 	call	0x70a2	; 0x70a2 <boot_send_nack>
+    7596:	02 c0       	rjmp	.+4      	; 0x759c <boot_main+0x11e>
+            }
+            else
+            {
+                boot_send_ack();
+    7598:	0e 94 39 38 	call	0x7072	; 0x7072 <boot_send_ack>
+            break;
+
+        default:
+            break;
+        }
+        memset(boot_data, 0, sizeof(boot_data));
+    759c:	fe 01       	movw	r30, r28
+    759e:	31 96       	adiw	r30, 0x01	; 1
+    75a0:	87 e8       	ldi	r24, 0x87	; 135
+    75a2:	df 01       	movw	r26, r30
+    75a4:	1d 92       	st	X+, r1
+    75a6:	8a 95       	dec	r24
+    75a8:	e9 f7       	brne	.-6      	; 0x75a4 <boot_main+0x126>
+    75aa:	8f e9       	ldi	r24, 0x9F	; 159
+    75ac:	9f e0       	ldi	r25, 0x0F	; 15
+    75ae:	01 97       	sbiw	r24, 0x01	; 1
+    75b0:	f1 f7       	brne	.-4      	; 0x75ae <boot_main+0x130>
+    75b2:	00 c0       	rjmp	.+0      	; 0x75b4 <boot_main+0x136>
+    75b4:	00 00       	nop
+    75b6:	75 cf       	rjmp	.-278    	; 0x74a2 <boot_main+0x24>
+
+000075b8 <main_cs>:
+{
+    PORTC ^= (1 << DDC0);
+}
+
+void main_cs(void)
+{
+    75b8:	cf 93       	push	r28
+    75ba:	df 93       	push	r29
+    75bc:	cd b7       	in	r28, 0x3d	; 61
+    75be:	de b7       	in	r29, 0x3e	; 62
+    75c0:	62 97       	sbiw	r28, 0x12	; 18
+    75c2:	0f b6       	in	r0, 0x3f	; 63
+    75c4:	f8 94       	cli
+    75c6:	de bf       	out	0x3e, r29	; 62
+    75c8:	0f be       	out	0x3f, r0	; 63
+    75ca:	cd bf       	out	0x3d, r28	; 61
+    UART_init(38400);
+    75cc:	80 e0       	ldi	r24, 0x00	; 0
+    75ce:	96 e9       	ldi	r25, 0x96	; 150
+    75d0:	0e 94 1a 3b 	call	0x7634	; 0x7634 <UART_init>
+    timer1_init();
+    75d4:	0e 94 03 3b 	call	0x7606	; 0x7606 <timer1_init>
+    gpio_init();
+    75d8:	0e 94 31 3a 	call	0x7462	; 0x7462 <gpio_init>
+    uint8_t dataReset[] = "BOOTLOADER RESET\n";
+    75dc:	82 e1       	ldi	r24, 0x12	; 18
+    75de:	e0 e0       	ldi	r30, 0x00	; 0
+    75e0:	f1 e0       	ldi	r31, 0x01	; 1
+    75e2:	de 01       	movw	r26, r28
+    75e4:	11 96       	adiw	r26, 0x01	; 1
+    75e6:	01 90       	ld	r0, Z+
+    75e8:	0d 92       	st	X+, r0
+    75ea:	8a 95       	dec	r24
+    75ec:	e1 f7       	brne	.-8      	; 0x75e6 <main_cs+0x2e>
+    UART_Transmit(dataReset, sizeof(dataReset), 10000);
+    75ee:	20 e1       	ldi	r18, 0x10	; 16
+    75f0:	37 e2       	ldi	r19, 0x27	; 39
+    75f2:	40 e0       	ldi	r20, 0x00	; 0
+    75f4:	50 e0       	ldi	r21, 0x00	; 0
+    75f6:	62 e1       	ldi	r22, 0x12	; 18
+    75f8:	70 e0       	ldi	r23, 0x00	; 0
+    75fa:	ce 01       	movw	r24, r28
+    75fc:	01 96       	adiw	r24, 0x01	; 1
+    75fe:	0e 94 52 3b 	call	0x76a4	; 0x76a4 <UART_Transmit>
+    boot_main();
+    7602:	0e 94 3f 3a 	call	0x747e	; 0x747e <boot_main>
+
+00007606 <timer1_init>:
+static uint32_t volatile countSystick = 0;
+// init 1ms timer , clk 16Mhz
+void timer1_init()
+{
+    // Set normal mode
+    TCCR1A = 0;
+    7606:	10 92 80 00 	sts	0x0080, r1	; 0x800080 <__DATA_REGION_ORIGIN__+0x20>
+    TCCR1B = 0;
+    760a:	e1 e8       	ldi	r30, 0x81	; 129
+    760c:	f0 e0       	ldi	r31, 0x00	; 0
+    760e:	10 82       	st	Z, r1
+    TCNT1 = 0;
+    7610:	10 92 85 00 	sts	0x0085, r1	; 0x800085 <__DATA_REGION_ORIGIN__+0x25>
+    7614:	10 92 84 00 	sts	0x0084, r1	; 0x800084 <__DATA_REGION_ORIGIN__+0x24>
+    // Set prescaler divide by 1024
+    TCCR1B |= (1 << CS10);
+    7618:	80 81       	ld	r24, Z
+    761a:	81 60       	ori	r24, 0x01	; 1
+    761c:	80 83       	st	Z, r24
+    TCCR1B |= (1 << CS11);
+    761e:	80 81       	ld	r24, Z
+    7620:	82 60       	ori	r24, 0x02	; 2
+    7622:	80 83       	st	Z, r24
+    TCCR1B |= (1 << CS12);
+    7624:	80 81       	ld	r24, Z
+    7626:	84 60       	ori	r24, 0x04	; 4
+    7628:	80 83       	st	Z, r24
+    762a:	08 95       	ret
+
+0000762c <is_external_clock>:
+uint8_t is_external_clock()
+{
+    uint8_t fuse_value = 1;
+    // uint8_t fuse_value = read_low_fuse();
+    return (fuse_value & 0x07) != 0x07;
+}
+    762c:	81 e0       	ldi	r24, 0x01	; 1
+    762e:	08 95       	ret
+
+00007630 <is_CKDIV8>:
+uint8_t is_CKDIV8()
+{
+    uint8_t fuse_value = 1;
+    // uint8_t fuse_value = read_low_fuse();
+    return (fuse_value & 0x80) != 0; // Check if CKDIV8 bit is set
+}
+    7630:	80 e0       	ldi	r24, 0x00	; 0
+    7632:	08 95       	ret
+
+00007634 <UART_init>:
+
+uint8_t UART_init(uint16_t baudrate)
+{
+    7634:	cf 93       	push	r28
+    7636:	df 93       	push	r29
+    7638:	ec 01       	movw	r28, r24
+    if (is_CKDIV8() && is_external_clock())
+    763a:	0e 94 18 3b 	call	0x7630	; 0x7630 <is_CKDIV8>
+    763e:	88 23       	and	r24, r24
+    7640:	21 f0       	breq	.+8      	; 0x764a <UART_init+0x16>
+    7642:	0e 94 16 3b 	call	0x762c	; 0x762c <is_external_clock>
+    7646:	81 11       	cpse	r24, r1
+    7648:	29 c0       	rjmp	.+82     	; 0x769c <UART_init+0x68>
+        return 1;
+
+    uint16_t ubrr = (uint16_t)(CPU_N / (16UL * baudrate)) - 1; // Calculate UBRR value
+    764a:	ce 01       	movw	r24, r28
+    764c:	a0 e0       	ldi	r26, 0x00	; 0
+    764e:	b0 e0       	ldi	r27, 0x00	; 0
+    7650:	88 0f       	add	r24, r24
+    7652:	99 1f       	adc	r25, r25
+    7654:	aa 1f       	adc	r26, r26
+    7656:	bb 1f       	adc	r27, r27
+    7658:	88 0f       	add	r24, r24
+    765a:	99 1f       	adc	r25, r25
+    765c:	aa 1f       	adc	r26, r26
+    765e:	bb 1f       	adc	r27, r27
+    7660:	9c 01       	movw	r18, r24
+    7662:	ad 01       	movw	r20, r26
+    7664:	22 0f       	add	r18, r18
+    7666:	33 1f       	adc	r19, r19
+    7668:	44 1f       	adc	r20, r20
+    766a:	55 1f       	adc	r21, r21
+    766c:	22 0f       	add	r18, r18
+    766e:	33 1f       	adc	r19, r19
+    7670:	44 1f       	adc	r20, r20
+    7672:	55 1f       	adc	r21, r21
+    7674:	60 e0       	ldi	r22, 0x00	; 0
+    7676:	74 e2       	ldi	r23, 0x24	; 36
+    7678:	84 ef       	ldi	r24, 0xF4	; 244
+    767a:	90 e0       	ldi	r25, 0x00	; 0
+    767c:	0e 94 b8 3b 	call	0x7770	; 0x7770 <__udivmodsi4>
+    7680:	21 50       	subi	r18, 0x01	; 1
+    7682:	31 09       	sbc	r19, r1
+
+    // Set baud rate
+    UBRR0H = (uint8_t)(ubrr >> 8);
+    7684:	30 93 c5 00 	sts	0x00C5, r19	; 0x8000c5 <__DATA_REGION_ORIGIN__+0x65>
+    UBRR0L = (uint8_t)(ubrr);
+    7688:	20 93 c4 00 	sts	0x00C4, r18	; 0x8000c4 <__DATA_REGION_ORIGIN__+0x64>
+
+    // Enable transmitter and receiver
+    UCSR0B = (1 << RXEN0) | (1 << TXEN0);
+    768c:	88 e1       	ldi	r24, 0x18	; 24
+    768e:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__DATA_REGION_ORIGIN__+0x61>
+
+    // Set frame format: 8 data bits, 1 stop bit
+    UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+    7692:	86 e0       	ldi	r24, 0x06	; 6
+    7694:	80 93 c2 00 	sts	0x00C2, r24	; 0x8000c2 <__DATA_REGION_ORIGIN__+0x62>
+
+    return 0;
+    7698:	80 e0       	ldi	r24, 0x00	; 0
+    769a:	01 c0       	rjmp	.+2      	; 0x769e <UART_init+0x6a>
+}
+
+uint8_t UART_init(uint16_t baudrate)
+{
+    if (is_CKDIV8() && is_external_clock())
+        return 1;
+    769c:	81 e0       	ldi	r24, 0x01	; 1
+
+    // Set frame format: 8 data bits, 1 stop bit
+    UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+
+    return 0;
+}
+    769e:	df 91       	pop	r29
+    76a0:	cf 91       	pop	r28
+    76a2:	08 95       	ret
+
+000076a4 <UART_Transmit>:
+
+AVR_status_t UART_Transmit(const uint8_t *data, uint16_t size, uint32_t timeout)
+{
+    76a4:	ef 92       	push	r14
+    76a6:	ff 92       	push	r15
+    76a8:	0f 93       	push	r16
+    76aa:	1f 93       	push	r17
+    76ac:	cf 93       	push	r28
+    76ae:	df 93       	push	r29
+    76b0:	dc 01       	movw	r26, r24
+    76b2:	7b 01       	movw	r14, r22
+    76b4:	89 01       	movw	r16, r18
+    76b6:	9a 01       	movw	r18, r20
+    uint32_t startTimer = 0;
+    for (uint16_t i = 0; i < size; i++)
+    76b8:	e0 e0       	ldi	r30, 0x00	; 0
+    76ba:	f0 e0       	ldi	r31, 0x00	; 0
+    76bc:	19 c0       	rjmp	.+50     	; 0x76f0 <UART_Transmit+0x4c>
+    {
+        // Wait for transmit buffer to be empty
+        while (!(UCSR0A & (1 << UDRE0)))
+        {
+            startTimer++;
+    76be:	4f 5f       	subi	r20, 0xFF	; 255
+    76c0:	5f 4f       	sbci	r21, 0xFF	; 255
+    76c2:	6f 4f       	sbci	r22, 0xFF	; 255
+    76c4:	7f 4f       	sbci	r23, 0xFF	; 255
+            if (startTimer > timeout)
+    76c6:	04 17       	cp	r16, r20
+    76c8:	15 07       	cpc	r17, r21
+    76ca:	26 07       	cpc	r18, r22
+    76cc:	37 07       	cpc	r19, r23
+    76ce:	20 f4       	brcc	.+8      	; 0x76d8 <UART_Transmit+0x34>
+    76d0:	14 c0       	rjmp	.+40     	; 0x76fa <UART_Transmit+0x56>
+    76d2:	40 e0       	ldi	r20, 0x00	; 0
+    76d4:	50 e0       	ldi	r21, 0x00	; 0
+    76d6:	ba 01       	movw	r22, r20
+{
+    uint32_t startTimer = 0;
+    for (uint16_t i = 0; i < size; i++)
+    {
+        // Wait for transmit buffer to be empty
+        while (!(UCSR0A & (1 << UDRE0)))
+    76d8:	90 91 c0 00 	lds	r25, 0x00C0	; 0x8000c0 <__DATA_REGION_ORIGIN__+0x60>
+    76dc:	95 ff       	sbrs	r25, 5
+    76de:	ef cf       	rjmp	.-34     	; 0x76be <UART_Transmit+0x1a>
+            if (startTimer > timeout)
+                return AVR_TIMEOUT;
+        }
+
+        // Load data into transmit register
+        UDR0 = data[i];
+    76e0:	cd 01       	movw	r24, r26
+    76e2:	8e 0f       	add	r24, r30
+    76e4:	9f 1f       	adc	r25, r31
+    76e6:	ec 01       	movw	r28, r24
+    76e8:	88 81       	ld	r24, Y
+    76ea:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__DATA_REGION_ORIGIN__+0x66>
+}
+
+AVR_status_t UART_Transmit(const uint8_t *data, uint16_t size, uint32_t timeout)
+{
+    uint32_t startTimer = 0;
+    for (uint16_t i = 0; i < size; i++)
+    76ee:	31 96       	adiw	r30, 0x01	; 1
+    76f0:	ee 15       	cp	r30, r14
+    76f2:	ff 05       	cpc	r31, r15
+    76f4:	70 f3       	brcs	.-36     	; 0x76d2 <UART_Transmit+0x2e>
+
+        // Load data into transmit register
+        UDR0 = data[i];
+        startTimer = 0;
+    }
+    return AVR_OK;
+    76f6:	80 e0       	ldi	r24, 0x00	; 0
+    76f8:	01 c0       	rjmp	.+2      	; 0x76fc <UART_Transmit+0x58>
+        // Wait for transmit buffer to be empty
+        while (!(UCSR0A & (1 << UDRE0)))
+        {
+            startTimer++;
+            if (startTimer > timeout)
+                return AVR_TIMEOUT;
+    76fa:	82 e0       	ldi	r24, 0x02	; 2
+        // Load data into transmit register
+        UDR0 = data[i];
+        startTimer = 0;
+    }
+    return AVR_OK;
+}
+    76fc:	df 91       	pop	r29
+    76fe:	cf 91       	pop	r28
+    7700:	1f 91       	pop	r17
+    7702:	0f 91       	pop	r16
+    7704:	ff 90       	pop	r15
+    7706:	ef 90       	pop	r14
+    7708:	08 95       	ret
+
+0000770a <UART_Receive>:
+
+AVR_status_t UART_Receive(uint8_t *data, uint16_t size, uint32_t timeout)
+{
+    770a:	ef 92       	push	r14
+    770c:	ff 92       	push	r15
+    770e:	0f 93       	push	r16
+    7710:	1f 93       	push	r17
+    7712:	cf 93       	push	r28
+    7714:	df 93       	push	r29
+    7716:	dc 01       	movw	r26, r24
+    7718:	7b 01       	movw	r14, r22
+    771a:	89 01       	movw	r16, r18
+    771c:	9a 01       	movw	r18, r20
+    uint32_t startTimer = 0;
+    for (uint16_t i = 0; i < size; i++)
+    771e:	e0 e0       	ldi	r30, 0x00	; 0
+    7720:	f0 e0       	ldi	r31, 0x00	; 0
+    7722:	19 c0       	rjmp	.+50     	; 0x7756 <UART_Receive+0x4c>
+    {
+        // Wait for data to be received
+        while (!(UCSR0A & (1 << RXC0)))
+        {
+            startTimer++;
+    7724:	4f 5f       	subi	r20, 0xFF	; 255
+    7726:	5f 4f       	sbci	r21, 0xFF	; 255
+    7728:	6f 4f       	sbci	r22, 0xFF	; 255
+    772a:	7f 4f       	sbci	r23, 0xFF	; 255
+            if (startTimer > timeout)
+    772c:	04 17       	cp	r16, r20
+    772e:	15 07       	cpc	r17, r21
+    7730:	26 07       	cpc	r18, r22
+    7732:	37 07       	cpc	r19, r23
+    7734:	20 f4       	brcc	.+8      	; 0x773e <UART_Receive+0x34>
+    7736:	14 c0       	rjmp	.+40     	; 0x7760 <UART_Receive+0x56>
+    7738:	40 e0       	ldi	r20, 0x00	; 0
+    773a:	50 e0       	ldi	r21, 0x00	; 0
+    773c:	ba 01       	movw	r22, r20
+{
+    uint32_t startTimer = 0;
+    for (uint16_t i = 0; i < size; i++)
+    {
+        // Wait for data to be received
+        while (!(UCSR0A & (1 << RXC0)))
+    773e:	90 91 c0 00 	lds	r25, 0x00C0	; 0x8000c0 <__DATA_REGION_ORIGIN__+0x60>
+    7742:	99 23       	and	r25, r25
+    7744:	7c f7       	brge	.-34     	; 0x7724 <UART_Receive+0x1a>
+                return AVR_TIMEOUT;
+            }
+        }
+
+        // Get received data from buffer
+        data[i] = UDR0;
+    7746:	cd 01       	movw	r24, r26
+    7748:	8e 0f       	add	r24, r30
+    774a:	9f 1f       	adc	r25, r31
+    774c:	40 91 c6 00 	lds	r20, 0x00C6	; 0x8000c6 <__DATA_REGION_ORIGIN__+0x66>
+    7750:	ec 01       	movw	r28, r24
+    7752:	48 83       	st	Y, r20
+}
+
+AVR_status_t UART_Receive(uint8_t *data, uint16_t size, uint32_t timeout)
+{
+    uint32_t startTimer = 0;
+    for (uint16_t i = 0; i < size; i++)
+    7754:	31 96       	adiw	r30, 0x01	; 1
+    7756:	ee 15       	cp	r30, r14
+    7758:	ff 05       	cpc	r31, r15
+    775a:	70 f3       	brcs	.-36     	; 0x7738 <UART_Receive+0x2e>
+
+        // Get received data from buffer
+        data[i] = UDR0;
+        startTimer = 0;
+    }
+    return AVR_OK;
+    775c:	80 e0       	ldi	r24, 0x00	; 0
+    775e:	01 c0       	rjmp	.+2      	; 0x7762 <UART_Receive+0x58>
+        while (!(UCSR0A & (1 << RXC0)))
+        {
+            startTimer++;
+            if (startTimer > timeout)
+            {
+                return AVR_TIMEOUT;
+    7760:	82 e0       	ldi	r24, 0x02	; 2
+        // Get received data from buffer
+        data[i] = UDR0;
+        startTimer = 0;
+    }
+    return AVR_OK;
+}
+    7762:	df 91       	pop	r29
+    7764:	cf 91       	pop	r28
+    7766:	1f 91       	pop	r17
+    7768:	0f 91       	pop	r16
+    776a:	ff 90       	pop	r15
+    776c:	ef 90       	pop	r14
+    776e:	08 95       	ret
+
+00007770 <__udivmodsi4>:
+    7770:	a1 e2       	ldi	r26, 0x21	; 33
+    7772:	1a 2e       	mov	r1, r26
+    7774:	aa 1b       	sub	r26, r26
+    7776:	bb 1b       	sub	r27, r27
+    7778:	fd 01       	movw	r30, r26
+    777a:	0d c0       	rjmp	.+26     	; 0x7796 <__udivmodsi4_ep>
+
+0000777c <__udivmodsi4_loop>:
+    777c:	aa 1f       	adc	r26, r26
+    777e:	bb 1f       	adc	r27, r27
+    7780:	ee 1f       	adc	r30, r30
+    7782:	ff 1f       	adc	r31, r31
+    7784:	a2 17       	cp	r26, r18
+    7786:	b3 07       	cpc	r27, r19
+    7788:	e4 07       	cpc	r30, r20
+    778a:	f5 07       	cpc	r31, r21
+    778c:	20 f0       	brcs	.+8      	; 0x7796 <__udivmodsi4_ep>
+    778e:	a2 1b       	sub	r26, r18
+    7790:	b3 0b       	sbc	r27, r19
+    7792:	e4 0b       	sbc	r30, r20
+    7794:	f5 0b       	sbc	r31, r21
+
+00007796 <__udivmodsi4_ep>:
+    7796:	66 1f       	adc	r22, r22
+    7798:	77 1f       	adc	r23, r23
+    779a:	88 1f       	adc	r24, r24
+    779c:	99 1f       	adc	r25, r25
+    779e:	1a 94       	dec	r1
+    77a0:	69 f7       	brne	.-38     	; 0x777c <__udivmodsi4_loop>
+    77a2:	60 95       	com	r22
+    77a4:	70 95       	com	r23
+    77a6:	80 95       	com	r24
+    77a8:	90 95       	com	r25
+    77aa:	9b 01       	movw	r18, r22
+    77ac:	ac 01       	movw	r20, r24
+    77ae:	bd 01       	movw	r22, r26
+    77b0:	cf 01       	movw	r24, r30
+    77b2:	08 95       	ret
